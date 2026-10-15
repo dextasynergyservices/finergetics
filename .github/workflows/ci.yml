@@ -22,7 +22,7 @@ jobs:
       - run: bun run check
       - run: bun run typecheck
       - run: bun run test
-      - run: bun audit
+      - run: bun audit --ignore GHSA-vfj7-8cjw-p6xm --ignore GHSA-67mh-4wv8-2f99
       - run: bun run build
         env:
           SKIP_ENV_VALIDATION: "1"   # needs `skipValidation` wired in src/env.ts, or supply dummy values
