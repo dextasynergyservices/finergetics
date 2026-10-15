@@ -1,69 +1,174 @@
-import Image from "next/image";
+import type { Metadata } from "next";
+import { SectionRenderer } from "@/components/sections/section-renderer";
+import { OrganizationJsonLd } from "@/components/seo/json-ld";
+import { CaseStudyCard } from "@/components/site/cards/case-study-card";
+import { PostCard } from "@/components/site/cards/post-card";
+import { CtaButton } from "@/components/site/cta-button";
+import { Footer } from "@/components/site/footer";
+import { Header } from "@/components/site/header";
+import { SectionHeading } from "@/components/site/section-heading";
+import type { PageSection } from "@/lib/schemas/sections";
+import { getPublishedCaseStudies } from "@/server/queries/case-studies";
+import { getPageByKey } from "@/server/queries/pages";
+import { getPublishedPosts } from "@/server/queries/posts";
+import { getPublishedServices } from "@/server/queries/services";
+import { getSiteSettings } from "@/server/queries/settings";
+import { getPublishedTeamMembers } from "@/server/queries/team";
 
-export default function Home() {
+export async function generateMetadata(): Promise<Metadata> {
+  const [page, settings] = await Promise.all([
+    getPageByKey("home"),
+    getSiteSettings(),
+  ]);
+
+  const title =
+    page?.seoTitle ||
+    settings.general.defaultSeoTitle ||
+    "Finergetics Consulting Limited — Risk, Performance & Value";
+
+  const description =
+    page?.seoDescription ||
+    settings.general.defaultSeoDescription ||
+    settings.general.brandLine ||
+    "Helping businesses control risk, improve performance, and increase value. Independent energy & financial advisory for oil & gas operators, JV partners, and energy investors.";
+
+  return {
+    title,
+    description,
+    alternates: {
+      canonical: "/",
+    },
+    openGraph: {
+      title,
+      description,
+      url: "/",
+      siteName: settings.general.siteName || "Finergetics Consulting Limited",
+      locale: "en_US",
+      type: "website",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+    },
+  };
+}
+
+export default async function HomePage() {
+  const [page, services, team, caseStudies, posts, settings] =
+    await Promise.all([
+      getPageByKey("home"),
+      getPublishedServices(),
+      getPublishedTeamMembers(),
+      getPublishedCaseStudies({ featuredOnly: true, limit: 2 }),
+      getPublishedPosts({ limit: 2 }),
+      getSiteSettings(),
+    ]);
+
+  const sections = (page?.sections as PageSection[]) || [];
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
+    <div className="min-h-screen flex flex-col bg-background text-foreground overflow-x-hidden max-w-full">
+      <OrganizationJsonLd
+        name={settings.general.siteName}
+        url="https://www.finergetics.com"
+        email={settings.contact.email}
+        phone={settings.contact.phone1}
+        address={settings.contact.address}
+        sameAs={
+          settings.social.linkedin ? [settings.social.linkedin] : undefined
+        }
+      />
+
+      <Header />
+
+      <main className="flex-1 overflow-x-hidden max-w-full">
+        {/* Render CMS Sections configured in Admin (Hero, Marquee, Intro, Services, Process, Why Us, Team, FAQ, CTA) */}
+        <SectionRenderer sections={sections} services={services} team={team} />
+
+        {/* Featured Case Studies Preview (Bound to CMS) */}
+        {caseStudies.length > 0 && (
+          <section className="py-20 sm:py-28 lg:py-36 bg-sky-50/40 border-b border-silver-400/20">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 space-y-12">
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+                <SectionHeading
+                  eyebrow="• MEASURABLE OUTCOMES"
+                  title="Proven Track Record in"
+                  highlight="High-Stakes Assets"
+                  description="Verifiable advisory engagements across joint venture audits, fiscal regime conversions, and capital control."
+                />
+                <CtaButton
+                  href="/case-studies"
+                  variant="outline"
+                  size="md"
+                  className="shrink-0 self-start sm:self-auto"
+                >
+                  View All Case Studies
+                </CtaButton>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {caseStudies.map((cs) => {
+                  const metric = cs.metrics?.[0];
+                  return (
+                    <CaseStudyCard
+                      key={cs.slug}
+                      slug={cs.slug}
+                      title={cs.title}
+                      clientName={cs.clientName || undefined}
+                      industry={cs.industry || undefined}
+                      summary={cs.summary}
+                      metricValue={metric?.value}
+                      metricLabel={metric?.label}
+                    />
+                  );
+                })}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {/* Latest Insights & Articles (Bound to CMS) */}
+        {posts.length > 0 && (
+          <section className="py-20 sm:py-28 lg:py-36 bg-white border-b border-silver-400/20">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 space-y-12">
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+                <SectionHeading
+                  eyebrow="• ADVISORY PERSPECTIVES"
+                  title="Executive Insights &"
+                  highlight="Energy Economics"
+                  description="Thought leadership and fiscal regime commentary authored by our principal consultants."
+                />
+                <CtaButton
+                  href="/blog"
+                  variant="outline"
+                  size="md"
+                  className="shrink-0 self-start sm:self-auto"
+                >
+                  Explore All Insights
+                </CtaButton>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                {posts.map((post) => (
+                  <PostCard
+                    key={post.slug}
+                    slug={post.slug}
+                    title={post.title}
+                    excerpt={post.excerpt}
+                    categoryName={post.categoryName}
+                    authorName={post.authorName}
+                    readingMinutes={post.readingMinutes}
+                    publishedAt={post.publishedAt}
+                  />
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
       </main>
+
+      <Footer />
     </div>
   );
 }
