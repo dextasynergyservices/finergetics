@@ -16,9 +16,9 @@ const securityHeaders = [
 ];
 
 const nextConfig: NextConfig = {
-  cacheComponents: true,
-  partialPrefetching: true,
   poweredByHeader: false,
+  cacheComponents: true,
+  partialPrefetching: false,
   images: {
     loader: "custom",
     loaderFile: "./src/lib/cloudinary-loader.ts",
