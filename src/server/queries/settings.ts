@@ -10,13 +10,29 @@ export async function getSiteSettings() {
   cacheTag("settings");
   cacheLife("days");
 
-  const rows = await db
-    .select()
-    .from(siteSettings)
-    .where(eq(siteSettings.id, 1))
-    .limit(1);
+  try {
+    const rows = await db
+      .select()
+      .from(siteSettings)
+      .where(eq(siteSettings.id, 1))
+      .limit(1);
 
-  if (!rows[0]?.data) {
+    if (!rows[0]?.data) {
+      return siteSettingsDataSchema.parse({
+        general: {},
+        contact: {},
+        social: {},
+        navigation: {},
+        security: {},
+      });
+    }
+
+    return siteSettingsDataSchema.parse(rows[0].data);
+  } catch (error) {
+    console.warn(
+      "getSiteSettings: DB unreachable during build/render, returning default settings:",
+      error,
+    );
     return siteSettingsDataSchema.parse({
       general: {},
       contact: {},
@@ -25,6 +41,4 @@ export async function getSiteSettings() {
       security: {},
     });
   }
-
-  return siteSettingsDataSchema.parse(rows[0].data);
 }

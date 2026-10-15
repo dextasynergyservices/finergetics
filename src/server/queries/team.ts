@@ -9,11 +9,19 @@ export async function getPublishedTeamMembers() {
   cacheTag("team");
   cacheLife("days");
 
-  return db
-    .select()
-    .from(teamMembers)
-    .where(eq(teamMembers.status, "published"))
-    .orderBy(asc(teamMembers.sortOrder), asc(teamMembers.createdAt));
+  try {
+    return await db
+      .select()
+      .from(teamMembers)
+      .where(eq(teamMembers.status, "published"))
+      .orderBy(asc(teamMembers.sortOrder), asc(teamMembers.createdAt));
+  } catch (error) {
+    console.warn(
+      "getPublishedTeamMembers: DB unreachable during build/render, returning empty list:",
+      error,
+    );
+    return [];
+  }
 }
 
 export async function getTeamMemberBySlug(slug: string) {
@@ -21,11 +29,21 @@ export async function getTeamMemberBySlug(slug: string) {
   cacheTag("team", `team:${slug}`);
   cacheLife("days");
 
-  const rows = await db
-    .select()
-    .from(teamMembers)
-    .where(and(eq(teamMembers.slug, slug), eq(teamMembers.status, "published")))
-    .limit(1);
+  try {
+    const rows = await db
+      .select()
+      .from(teamMembers)
+      .where(
+        and(eq(teamMembers.slug, slug), eq(teamMembers.status, "published")),
+      )
+      .limit(1);
 
-  return rows[0] || null;
+    return rows[0] || null;
+  } catch (error) {
+    console.warn(
+      `getTeamMemberBySlug(${slug}): DB unreachable during build/render, returning null:`,
+      error,
+    );
+    return null;
+  }
 }

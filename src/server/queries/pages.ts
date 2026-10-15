@@ -9,11 +9,19 @@ export async function getPageByKey(key: string) {
   cacheTag("pages", `page:${key}`);
   cacheLife("days");
 
-  const rows = await db
-    .select()
-    .from(pages)
-    .where(and(eq(pages.key, key), eq(pages.status, "published")))
-    .limit(1);
+  try {
+    const rows = await db
+      .select()
+      .from(pages)
+      .where(and(eq(pages.key, key), eq(pages.status, "published")))
+      .limit(1);
 
-  return rows[0] || null;
+    return rows[0] || null;
+  } catch (error) {
+    console.warn(
+      `getPageByKey(${key}): DB unreachable during build/render, returning null:`,
+      error,
+    );
+    return null;
+  }
 }

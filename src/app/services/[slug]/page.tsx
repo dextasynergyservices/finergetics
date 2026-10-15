@@ -19,8 +19,12 @@ interface ServiceDetailPageProps {
 }
 
 export async function generateStaticParams() {
-  const services = await getPublishedServices();
-  return services.map((s) => ({ slug: s.slug }));
+  try {
+    const services = await getPublishedServices();
+    return services.map((s) => ({ slug: s.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({

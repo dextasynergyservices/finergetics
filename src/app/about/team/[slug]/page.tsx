@@ -32,8 +32,12 @@ interface TeamMemberPageProps {
 }
 
 export async function generateStaticParams() {
-  const members = await getPublishedTeamMembers();
-  return members.map((m) => ({ slug: m.slug }));
+  try {
+    const members = await getPublishedTeamMembers();
+    return members.map((m) => ({ slug: m.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({

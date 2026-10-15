@@ -25,8 +25,12 @@ interface CaseStudyDetailPageProps {
 }
 
 export async function generateStaticParams() {
-  const caseStudies = await getPublishedCaseStudies();
-  return caseStudies.map((cs) => ({ slug: cs.slug }));
+  try {
+    const caseStudies = await getPublishedCaseStudies();
+    return caseStudies.map((cs) => ({ slug: cs.slug }));
+  } catch {
+    return [];
+  }
 }
 
 export async function generateMetadata({
