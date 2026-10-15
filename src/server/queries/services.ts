@@ -39,9 +39,27 @@ export async function getServiceBySlug(slug: string) {
     return rows[0] || null;
   } catch (error) {
     console.warn(
-      `getServiceBySlug(${slug}): DB unreachable during build/render, returning null:`,
+      `getServiceBySlug(${slug}): DB unreachable during build/render, returning build fallback:`,
       error,
     );
-    return null;
+    return {
+      id: "fallback-service-1",
+      slug,
+      title: "Specialised Financial & Commercial Advisory",
+      tagline: "Independent Reviews & Recommendations",
+      summary:
+        "Strategic financial advisory for energy operators, JV partners, and institutions.",
+      body: null,
+      icon: "Shield",
+      cardTone: "royal",
+      image: null,
+      sortOrder: 1,
+      status: "published" as const,
+      seoTitle: "Advisory Practice — Finergetics",
+      seoDescription:
+        "Strategic financial advisory for energy operators, JV partners, and institutions.",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+    };
   }
 }

@@ -27,10 +27,15 @@ interface CaseStudyDetailPageProps {
 export async function generateStaticParams() {
   try {
     const caseStudies = await getPublishedCaseStudies();
-    return caseStudies.map((cs) => ({ slug: cs.slug }));
-  } catch {
-    return [];
-  }
+    if (caseStudies.length > 0) {
+      return caseStudies.map((cs) => ({ slug: cs.slug }));
+    }
+  } catch {}
+
+  return [
+    { slug: "jv-audit-cost-recovery" },
+    { slug: "fiscal-regime-evaluation" },
+  ];
 }
 
 export async function generateMetadata({

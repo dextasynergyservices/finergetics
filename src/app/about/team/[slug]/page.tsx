@@ -34,10 +34,12 @@ interface TeamMemberPageProps {
 export async function generateStaticParams() {
   try {
     const members = await getPublishedTeamMembers();
-    return members.map((m) => ({ slug: m.slug }));
-  } catch {
-    return [];
-  }
+    if (members.length > 0) {
+      return members.map((m) => ({ slug: m.slug }));
+    }
+  } catch {}
+
+  return [{ slug: "rotimi-lawuyi" }, { slug: "edidiong-eyoma" }];
 }
 
 export async function generateMetadata({

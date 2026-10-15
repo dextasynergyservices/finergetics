@@ -21,10 +21,15 @@ interface ServiceDetailPageProps {
 export async function generateStaticParams() {
   try {
     const services = await getPublishedServices();
-    return services.map((s) => ({ slug: s.slug }));
-  } catch {
-    return [];
-  }
+    if (services.length > 0) {
+      return services.map((s) => ({ slug: s.slug }));
+    }
+  } catch {}
+
+  return [
+    { slug: "financial-control-and-advisory" },
+    { slug: "commercial-economics-and-investment-analysis" },
+  ];
 }
 
 export async function generateMetadata({

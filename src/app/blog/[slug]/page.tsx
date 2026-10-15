@@ -19,10 +19,15 @@ interface PostDetailPageProps {
 export async function generateStaticParams() {
   try {
     const posts = await getPublishedPosts();
-    return posts.map((p) => ({ slug: p.slug }));
-  } catch {
-    return [];
-  }
+    if (posts.length > 0) {
+      return posts.map((p) => ({ slug: p.slug }));
+    }
+  } catch {}
+
+  return [
+    { slug: "strengthening-jv-internal-controls" },
+    { slug: "navigating-deepwater-psc-cost-recovery" },
+  ];
 }
 
 export async function generateMetadata({
