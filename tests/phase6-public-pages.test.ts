@@ -9,6 +9,37 @@ mock.module("next/cache", () => ({
 }));
 process.env.__NEXT_USE_CACHE = "1";
 
+mock.module("@/server/queries/services", () => ({
+  getPublishedServices: async () => [
+    { slug: "financial-control", updatedAt: new Date() },
+  ],
+}));
+
+mock.module("@/server/queries/team", () => ({
+  getPublishedTeamMembers: async () => [
+    { slug: "rotimi-lawuyi", updatedAt: new Date() },
+  ],
+}));
+
+mock.module("@/server/queries/case-studies", () => ({
+  getPublishedCaseStudies: async () => [
+    { slug: "jv-audit-cost-recovery", updatedAt: new Date() },
+  ],
+}));
+
+mock.module("@/server/queries/posts", () => ({
+  getPublishedPosts: async () => [
+    {
+      slug: "petroleum-industry-act-fiscal-terms",
+      title: "PIA Fiscal Terms Deep Dive",
+      excerpt: "Comprehensive analysis of modern deepwater terms.",
+      publishedAt: new Date("2026-03-01"),
+      categoryName: "Fiscal Economics",
+      authorName: "Rotimi Lawuyi",
+    },
+  ],
+}));
+
 import robots from "@/app/robots";
 import { pageSectionsArraySchema } from "@/lib/schemas/sections";
 
