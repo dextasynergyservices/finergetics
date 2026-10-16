@@ -21,7 +21,7 @@ export function proxy(request: NextRequest) {
 
   const adminCsp = [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' 'strict-dynamic' 'unsafe-inline' ${isDev ? "'unsafe-eval'" : ""} https://widget.cloudinary.com https://upload-widget.cloudinary.com https://*.cloudinary.com`.replace(
+    `script-src 'self' 'nonce-${nonce}' 'unsafe-inline' 'unsafe-eval' https://widget.cloudinary.com https://upload-widget.cloudinary.com https://*.cloudinary.com`.replace(
       /\s+/g,
       " ",
     ),
