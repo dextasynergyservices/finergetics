@@ -1,4 +1,3 @@
-import { env } from "@/env";
 import type { ImageRef } from "./schemas/common";
 
 export interface CloudinaryTransformOptions {
@@ -23,7 +22,8 @@ export function getCloudinaryUrl(
     return publicId;
   }
 
-  const cloudName = env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME;
+  const cloudName =
+    process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || "djyarsuk6";
   const transforms: string[] = ["f_auto", "q_auto"];
 
   if (options.gravity) {

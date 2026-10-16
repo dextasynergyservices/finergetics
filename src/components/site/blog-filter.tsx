@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { PostCard } from "@/components/site/cards/post-card";
+import type { ImageRef } from "@/lib/schemas/common";
 import { cn } from "@/lib/utils";
 
 export interface PostItem {
@@ -9,6 +10,7 @@ export interface PostItem {
   slug: string;
   title: string;
   excerpt: string;
+  cover?: ImageRef | { publicId: string; alt?: string } | null;
   categoryName?: string | null;
   categorySlug?: string | null;
   authorName?: string | null;
@@ -107,6 +109,7 @@ export function BlogFilter({ posts, categories }: BlogFilterProps) {
             slug={featuredPost.slug}
             title={featuredPost.title}
             excerpt={featuredPost.excerpt}
+            cover={featuredPost.cover}
             categoryName={featuredPost.categoryName}
             authorName={featuredPost.authorName}
             readingMinutes={featuredPost.readingMinutes}
@@ -124,6 +127,7 @@ export function BlogFilter({ posts, categories }: BlogFilterProps) {
             slug={post.slug}
             title={post.title}
             excerpt={post.excerpt}
+            cover={post.cover}
             categoryName={post.categoryName}
             authorName={post.authorName}
             readingMinutes={post.readingMinutes}

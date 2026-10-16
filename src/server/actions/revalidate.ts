@@ -28,10 +28,13 @@ export async function revalidateContent(tags: ContentTag | ContentTag[]) {
   return { success: true, revalidatedTags: tagList, timestamp: Date.now() };
 }
 
+import { requireAdmin } from "@/server/auth/guard";
+
 /**
- * Convenience helper to invalidate all public content caches
+ * Convenience helper to invalidate all public content caches (Admin only)
  */
 export async function revalidateAllContent() {
+  await requireAdmin();
   const allTags: ContentTag[] = [
     "services",
     "pages",

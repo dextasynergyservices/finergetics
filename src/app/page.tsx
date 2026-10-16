@@ -82,7 +82,7 @@ export default async function HomePage() {
 
       <Header />
 
-      <main className="flex-1 overflow-x-hidden max-w-full">
+      <main id="main-content" className="flex-1 overflow-x-hidden max-w-full">
         {/* Render CMS Sections configured in Admin (Hero, Marquee, Intro, Services, Process, Why Us, Team, FAQ, CTA) */}
         <SectionRenderer sections={sections} services={services} team={team} />
 
@@ -156,6 +156,7 @@ export default async function HomePage() {
                     slug={post.slug}
                     title={post.title}
                     excerpt={post.excerpt}
+                    cover={post.cover}
                     categoryName={post.categoryName}
                     authorName={post.authorName}
                     readingMinutes={post.readingMinutes}

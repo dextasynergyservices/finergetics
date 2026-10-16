@@ -21,13 +21,13 @@ export function HeroSectionComponent({ section }: HeroSectionComponentProps) {
             alt={data.backgroundImage.alt || "Finergetics Corporate Advisory"}
             fill
             priority
-            className="object-cover object-right lg:object-center select-none"
+            className="object-cover object-right lg:object-center select-none opacity-20 sm:opacity-25 transition-opacity"
             sizes="100vw"
           />
-          {/* Subtle light gradient on the text side, leaving the architecture completely clear */}
-          <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/40 via-40% to-transparent" />
-          <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-background to-transparent" />
-          <div className="absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-white/60 to-transparent" />
+          {/* Multi-layer protective gradient overlay ensuring pristine typography legibility */}
+          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 via-50% to-white/60" />
+          <div className="absolute bottom-0 inset-x-0 h-28 bg-gradient-to-t from-background via-background/80 to-transparent" />
+          <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-white to-transparent" />
         </div>
       )}
 
@@ -37,7 +37,7 @@ export function HeroSectionComponent({ section }: HeroSectionComponentProps) {
             <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-5xl xl:text-5xl uppercase tracking-tight text-navy-950 leading-[1.12]">
               {data.headline}{" "}
               {data.highlightedText && (
-                <span className="font-ui font-extrabold italic normal-case text-royal-600 block sm:inline">
+                <span className="font-ui font-extrabold italic normal-case text-royal-600 block sm:inline-block sm:whitespace-nowrap">
                   {data.highlightedText}
                 </span>
               )}

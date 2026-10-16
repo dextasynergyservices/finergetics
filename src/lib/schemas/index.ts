@@ -7,3 +7,4 @@ export * from "./sections";
 export * from "./service";
 export * from "./settings";
 export * from "./team";
+export * from "./user";

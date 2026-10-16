@@ -174,6 +174,7 @@ export function Header() {
             className="lg:hidden w-11 h-11 rounded-2xl bg-sky-50/80 active:bg-sky-100 border border-silver-400/20 text-ink-900 flex items-center justify-center transition-transform active:scale-95 cursor-pointer"
             aria-label="Open Navigation Menu"
             aria-expanded={mobileMenuOpen}
+            aria-controls="mobile-nav-dialog"
           >
             <Menu className="w-5 h-5 text-ink-900" />
           </button>
@@ -181,228 +182,232 @@ export function Header() {
       </header>
 
       {/* Full-Screen Native Mobile Navigation Drawer */}
-      {mobileMenuOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Mobile Navigation"
-          className="lg:hidden fixed inset-0 z-50 bg-white flex flex-col animate-in fade-in zoom-in-95 duration-200"
-        >
-          {/* Native Top Bar */}
-          <div className="px-5 py-4 border-b border-silver-400/20 flex items-center justify-between bg-white shrink-0">
-            <Link href="/" onClick={closeMenu} className="flex items-center">
-              <Image
-                src="/logo-blue.png"
-                alt="Finergetics Consulting Limited"
-                width={201}
-                height={54}
-                className="h-7 sm:h-8 w-auto object-contain"
-                priority
-                unoptimized
-              />
-            </Link>
+      <div
+        id="mobile-nav-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Mobile Navigation"
+        className={cn(
+          "lg:hidden fixed inset-0 z-50 bg-white flex flex-col duration-200",
+          mobileMenuOpen
+            ? "animate-in fade-in zoom-in-95 pointer-events-auto"
+            : "hidden pointer-events-none",
+        )}
+      >
+        {/* Native Top Bar */}
+        <div className="px-5 py-4 border-b border-silver-400/20 flex items-center justify-between bg-white shrink-0">
+          <Link href="/" onClick={closeMenu} className="flex items-center">
+            <Image
+              src="/logo-blue.png"
+              alt="Finergetics Consulting Limited"
+              width={201}
+              height={54}
+              className="h-7 sm:h-8 w-auto object-contain"
+              priority
+              unoptimized
+            />
+          </Link>
 
-            <button
-              type="button"
-              onClick={closeMenu}
-              className="w-10 h-10 rounded-full bg-sky-50 active:bg-sky-100 text-ink-900 flex items-center justify-center transition-transform active:scale-90 border border-silver-400/20 cursor-pointer"
-              aria-label="Close Navigation Menu"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={closeMenu}
+            className="w-10 h-10 rounded-full bg-sky-50 active:bg-sky-100 text-ink-900 flex items-center justify-center transition-transform active:scale-90 border border-silver-400/20 cursor-pointer"
+            aria-label="Close Navigation Menu"
+          >
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
-          {/* Native Scrollable List */}
-          <div className="flex-1 overflow-y-auto px-5 pt-5 pb-10 overscroll-contain space-y-6">
-            {/* Primary Navigation Card Group */}
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-widest text-slate-600 px-3 pb-2.5">
-                Navigation
-              </p>
-              <div className="bg-sky-50/60 rounded-3xl border border-silver-400/20 divide-y divide-silver-400/15 overflow-hidden shadow-xs">
-                {/* Home */}
-                <Link
-                  href="/"
-                  onClick={closeMenu}
-                  className="flex items-center justify-between p-4 active:bg-sky-100/70 transition-colors"
-                >
-                  <span className="font-ui text-base font-semibold text-ink-900">
-                    Home
-                  </span>
-                  <ChevronRight className="w-4 h-4 text-silver-400" />
-                </Link>
-
-                {/* Services (Accordion - Closed by default) */}
-                <div>
-                  <button
-                    type="button"
-                    onClick={() => setIsServicesOpen(!isServicesOpen)}
-                    className="w-full flex items-center justify-between p-4 active:bg-sky-100/70 transition-colors text-left cursor-pointer"
-                    aria-expanded={isServicesOpen}
-                  >
-                    <div className="flex items-center gap-2.5">
-                      <span className="font-ui text-base font-semibold text-ink-900">
-                        Services
-                      </span>
-                    </div>
-                    <div
-                      className={cn(
-                        "w-7 h-7 rounded-full bg-white flex items-center justify-center text-slate-600 transition-transform duration-200 border border-silver-400/20",
-                        isServicesOpen && "rotate-180 bg-royal-600 text-white",
-                      )}
-                    >
-                      <ChevronDown className="w-4 h-4" />
-                    </div>
-                  </button>
-
-                  {/* Accordion Sub-List */}
-                  {isServicesOpen && (
-                    <div className="bg-white/80 border-t border-silver-400/15 p-2 space-y-1.5 animate-in slide-in-from-top-2 duration-200">
-                      <Link
-                        href="/services"
-                        onClick={closeMenu}
-                        className="flex items-center justify-between p-3 rounded-2xl bg-royal-50/50 hover:bg-royal-50 text-royal-700 text-xs font-bold uppercase tracking-wider transition-colors"
-                      >
-                        <span>Overview (All 4 Services)</span>
-                        <ArrowUpRight className="w-4 h-4" />
-                      </Link>
-
-                      {NAV_SERVICES.map((s) => (
-                        <Link
-                          key={s.slug}
-                          href={`/services/${s.slug}`}
-                          onClick={closeMenu}
-                          className="block p-3 rounded-2xl active:bg-sky-50 transition-colors"
-                        >
-                          <p className="text-xs font-bold text-ink-900">
-                            {s.title}
-                          </p>
-                          <p className="text-[11px] text-slate-600 truncate mt-0.5">
-                            {s.tagline}
-                          </p>
-                        </Link>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* About Us */}
-                <Link
-                  href="/about"
-                  onClick={closeMenu}
-                  className="flex items-center justify-between p-4 active:bg-sky-100/70 transition-colors"
-                >
-                  <div>
-                    <span className="font-ui text-base font-semibold text-ink-900 block">
-                      About Us
-                    </span>
-                    <span className="text-[11px] text-slate-600">
-                      Our Mission & Consultant Team
-                    </span>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-silver-400" />
-                </Link>
-
-                {/* Case Studies */}
-                <Link
-                  href="/case-studies"
-                  onClick={closeMenu}
-                  className="flex items-center justify-between p-4 active:bg-sky-100/70 transition-colors"
-                >
-                  <div>
-                    <span className="font-ui text-base font-semibold text-ink-900 block">
-                      Case Studies
-                    </span>
-                    <span className="text-[11px] text-slate-600">
-                      Proven Engagements & Outcomes
-                    </span>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-silver-400" />
-                </Link>
-
-                {/* Insights / Blog */}
-                <Link
-                  href="/blog"
-                  onClick={closeMenu}
-                  className="flex items-center justify-between p-4 active:bg-sky-100/70 transition-colors"
-                >
-                  <div>
-                    <span className="font-ui text-base font-semibold text-ink-900 block">
-                      Insights & Perspectives
-                    </span>
-                    <span className="text-[11px] text-slate-600">
-                      Energy Economics & Fiscal Analysis
-                    </span>
-                  </div>
-                  <ChevronRight className="w-4 h-4 text-silver-400" />
-                </Link>
-              </div>
-            </div>
-
-            {/* Direct Advisory Contact Card Group */}
-            <div>
-              <p className="text-[11px] font-bold uppercase tracking-widest text-slate-600 px-3 pb-2.5">
-                Direct Contact
-              </p>
-              <div className="bg-sky-50/60 rounded-3xl border border-silver-400/20 divide-y divide-silver-400/15 overflow-hidden shadow-xs">
-                <a
-                  href="mailto:info@finergetics.com"
-                  className="flex items-center justify-between p-4 active:bg-sky-100/70 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-royal-600 border border-silver-400/20">
-                      <Mail className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-ink-900">Email Us</p>
-                      <p className="text-[11px] text-slate-600">
-                        info@finergetics.com
-                      </p>
-                    </div>
-                  </div>
-                  <ArrowUpRight className="w-4 h-4 text-silver-400" />
-                </a>
-
-                <a
-                  href="tel:+2348033246377"
-                  className="flex items-center justify-between p-4 active:bg-sky-100/70 transition-colors"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-royal-600 border border-silver-400/20">
-                      <Phone className="w-4 h-4" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-ink-900">
-                        Direct Phone
-                      </p>
-                      <p className="text-[11px] text-slate-600">
-                        +234 803 324 6377 / +234 803 301 1334
-                      </p>
-                    </div>
-                  </div>
-                  <ArrowUpRight className="w-4 h-4 text-silver-400" />
-                </a>
-              </div>
-            </div>
-          </div>
-
-          {/* Bottom Dock CTA */}
-          <div className="p-5 bg-white border-t border-silver-400/20 shrink-0 space-y-2.5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
-            <CtaButton
-              href="/book-a-call"
-              size="lg"
-              variant="primary"
-              className="w-full justify-center shadow-md active:scale-[0.98] transition-transform py-3.5"
-              onClick={closeMenu}
-            >
-              Book an Advisory Discussion
-            </CtaButton>
-            <p className="text-[11px] text-center text-slate-600">
-              Finergetics Consulting Limited · Independent Advisory
+        {/* Native Scrollable List */}
+        <div className="flex-1 overflow-y-auto px-5 pt-5 pb-10 overscroll-contain space-y-6">
+          {/* Primary Navigation Card Group */}
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-slate-600 px-3 pb-2.5">
+              Navigation
             </p>
+            <div className="bg-sky-50/60 rounded-3xl border border-silver-400/20 divide-y divide-silver-400/15 overflow-hidden shadow-xs">
+              {/* Home */}
+              <Link
+                href="/"
+                onClick={closeMenu}
+                className="flex items-center justify-between p-4 active:bg-sky-100/70 transition-colors"
+              >
+                <span className="font-ui text-base font-semibold text-ink-900">
+                  Home
+                </span>
+                <ChevronRight className="w-4 h-4 text-silver-400" />
+              </Link>
+
+              {/* Services (Accordion - Closed by default) */}
+              <div>
+                <button
+                  type="button"
+                  onClick={() => setIsServicesOpen(!isServicesOpen)}
+                  className="w-full flex items-center justify-between p-4 active:bg-sky-100/70 transition-colors text-left cursor-pointer"
+                  aria-expanded={isServicesOpen}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span className="font-ui text-base font-semibold text-ink-900">
+                      Services
+                    </span>
+                  </div>
+                  <div
+                    className={cn(
+                      "w-7 h-7 rounded-full bg-white flex items-center justify-center text-slate-600 transition-transform duration-200 border border-silver-400/20",
+                      isServicesOpen && "rotate-180 bg-royal-600 text-white",
+                    )}
+                  >
+                    <ChevronDown className="w-4 h-4" />
+                  </div>
+                </button>
+
+                {/* Accordion Sub-List */}
+                {isServicesOpen && (
+                  <div className="bg-white/80 border-t border-silver-400/15 p-2 space-y-1.5 animate-in slide-in-from-top-2 duration-200">
+                    <Link
+                      href="/services"
+                      onClick={closeMenu}
+                      className="flex items-center justify-between p-3 rounded-2xl bg-royal-50/50 hover:bg-royal-50 text-royal-700 text-xs font-bold uppercase tracking-wider transition-colors"
+                    >
+                      <span>Overview (All 4 Services)</span>
+                      <ArrowUpRight className="w-4 h-4" />
+                    </Link>
+
+                    {NAV_SERVICES.map((s) => (
+                      <Link
+                        key={s.slug}
+                        href={`/services/${s.slug}`}
+                        onClick={closeMenu}
+                        className="block p-3 rounded-2xl active:bg-sky-50 transition-colors"
+                      >
+                        <p className="text-xs font-bold text-ink-900">
+                          {s.title}
+                        </p>
+                        <p className="text-[11px] text-slate-600 truncate mt-0.5">
+                          {s.tagline}
+                        </p>
+                      </Link>
+                    ))}
+                  </div>
+                )}
+              </div>
+
+              {/* About Us */}
+              <Link
+                href="/about"
+                onClick={closeMenu}
+                className="flex items-center justify-between p-4 active:bg-sky-100/70 transition-colors"
+              >
+                <div>
+                  <span className="font-ui text-base font-semibold text-ink-900 block">
+                    About Us
+                  </span>
+                  <span className="text-[11px] text-slate-600">
+                    Our Mission & Consultant Team
+                  </span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-silver-400" />
+              </Link>
+
+              {/* Case Studies */}
+              <Link
+                href="/case-studies"
+                onClick={closeMenu}
+                className="flex items-center justify-between p-4 active:bg-sky-100/70 transition-colors"
+              >
+                <div>
+                  <span className="font-ui text-base font-semibold text-ink-900 block">
+                    Case Studies
+                  </span>
+                  <span className="text-[11px] text-slate-600">
+                    Proven Engagements & Outcomes
+                  </span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-silver-400" />
+              </Link>
+
+              {/* Insights / Blog */}
+              <Link
+                href="/blog"
+                onClick={closeMenu}
+                className="flex items-center justify-between p-4 active:bg-sky-100/70 transition-colors"
+              >
+                <div>
+                  <span className="font-ui text-base font-semibold text-ink-900 block">
+                    Insights & Perspectives
+                  </span>
+                  <span className="text-[11px] text-slate-600">
+                    Energy Economics & Fiscal Analysis
+                  </span>
+                </div>
+                <ChevronRight className="w-4 h-4 text-silver-400" />
+              </Link>
+            </div>
+          </div>
+
+          {/* Direct Advisory Contact Card Group */}
+          <div>
+            <p className="text-[11px] font-bold uppercase tracking-widest text-slate-600 px-3 pb-2.5">
+              Direct Contact
+            </p>
+            <div className="bg-sky-50/60 rounded-3xl border border-silver-400/20 divide-y divide-silver-400/15 overflow-hidden shadow-xs">
+              <a
+                href="mailto:info@finergetics.com"
+                className="flex items-center justify-between p-4 active:bg-sky-100/70 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-royal-600 border border-silver-400/20">
+                    <Mail className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-ink-900">Email Us</p>
+                    <p className="text-[11px] text-slate-600">
+                      info@finergetics.com
+                    </p>
+                  </div>
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-silver-400" />
+              </a>
+
+              <a
+                href="tel:+2348033246377"
+                className="flex items-center justify-between p-4 active:bg-sky-100/70 transition-colors"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center text-royal-600 border border-silver-400/20">
+                    <Phone className="w-4 h-4" />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-ink-900">
+                      Direct Phone
+                    </p>
+                    <p className="text-[11px] text-slate-600">
+                      +234 803 324 6377 / +234 803 301 1334
+                    </p>
+                  </div>
+                </div>
+                <ArrowUpRight className="w-4 h-4 text-silver-400" />
+              </a>
+            </div>
           </div>
         </div>
-      )}
+
+        {/* Bottom Dock CTA */}
+        <div className="p-5 bg-white border-t border-silver-400/20 shrink-0 space-y-2.5 pb-[max(1.25rem,env(safe-area-inset-bottom))]">
+          <CtaButton
+            href="/book-a-call"
+            size="lg"
+            variant="primary"
+            className="w-full justify-center shadow-md active:scale-[0.98] transition-transform py-3.5"
+            onClick={closeMenu}
+          >
+            Book an Advisory Discussion
+          </CtaButton>
+          <p className="text-[11px] text-center text-slate-600">
+            Finergetics Consulting Limited · Independent Advisory
+          </p>
+        </div>
+      </div>
     </>
   );
 }

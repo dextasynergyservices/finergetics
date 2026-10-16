@@ -65,7 +65,7 @@ export default async function AboutPage() {
 
       <Header />
 
-      <main className="flex-1 overflow-x-hidden max-w-full">
+      <main id="main-content" className="flex-1 overflow-x-hidden max-w-full">
         {/* Render CMS Sections configured in Admin (Hero, Intro, Values, Team, CTA) */}
         <SectionRenderer sections={sections} team={team} />
       </main>
