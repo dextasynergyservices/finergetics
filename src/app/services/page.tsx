@@ -65,7 +65,7 @@ export default async function ServicesPage() {
 
       <Header />
 
-      <main className="flex-1 overflow-x-hidden max-w-full">
+      <main id="main-content" className="flex-1 overflow-x-hidden max-w-full">
         {/* Render CMS Sections configured in Admin (Hero, Services Grid, Process, FAQ, CTA) */}
         <SectionRenderer sections={sections} services={services} />
       </main>

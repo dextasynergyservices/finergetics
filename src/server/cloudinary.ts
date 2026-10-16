@@ -9,6 +9,13 @@ cloudinary.config({
   secure: true,
 });
 
+export {
+  ALLOWED_IMAGE_FORMATS,
+  ALLOWED_MIME_TYPES,
+  ALLOWED_UPLOAD_FOLDERS,
+  MAX_UPLOAD_BYTES,
+} from "@/lib/constants/security";
+
 /**
  * Generates an authorized signature for direct browser-to-Cloudinary uploads
  */
@@ -61,28 +68,31 @@ export async function uploadBufferToCloudinary(
     publicId?: string;
   } = {},
 ): Promise<CloudinaryUploadResult> {
-  return new Promise((resolve, reject) => {
-    const stream = cloudinary.uploader.upload_stream(
-      {
-        folder: options.folder || "finergetics",
-        resource_type: options.resourceType || "image",
-        public_id: options.publicId,
-      },
-      (error, result) => {
-        if (error || !result) {
-          reject(error || new Error("Cloudinary upload failed"));
-        } else {
-          resolve({
-            publicId: result.public_id,
-            secureUrl: result.secure_url,
-            width: result.width,
-            height: result.height,
-            bytes: result.bytes,
-            format: result.format,
-          });
-        }
-      },
-    );
-    stream.end(buffer);
-  });
+  const base64 = buffer.toString("base64");
+  const dataUri = `data:image/jpeg;base64,${base64}`;
+
+  try {
+    const result = await cloudinary.uploader.upload(dataUri, {
+      folder: options.folder || "finergetics",
+      resource_type: options.resourceType || "image",
+      public_id: options.publicId,
+    });
+
+    return {
+      publicId: result.public_id,
+      secureUrl: result.secure_url,
+      width: result.width,
+      height: result.height,
+      bytes: result.bytes,
+      format: result.format,
+    };
+  } catch (err) {
+    const msg =
+      err instanceof Error
+        ? err.message
+        : typeof err === "object" && err !== null && "message" in err
+          ? String((err as { message: unknown }).message)
+          : "Cloudinary upload failed";
+    throw new Error(msg);
+  }
 }

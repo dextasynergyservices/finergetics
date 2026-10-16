@@ -77,6 +77,7 @@ const ALL_ACTIONS: ActionItem[] = [
     category: "Navigation",
     href: "/admin/leads",
     icon: Inbox,
+    adminOnly: true,
   },
   {
     id: "media",

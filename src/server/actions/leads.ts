@@ -5,6 +5,10 @@ import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import { env } from "@/env";
 import {
+  MIN_FORM_DWELL_TIME_MS,
+  sanitizeSecurityInput,
+} from "@/lib/constants/security";
+import {
   leadUpdateSchema,
   type PublicInquiryInput,
   publicInquirySchema,
@@ -18,15 +22,28 @@ import { checkRateLimit } from "@/server/security/ratelimit";
 
 export type { PublicInquiryInput };
 
-async function verifyRecaptcha(
+export async function verifyRecaptcha(
   token: string,
+  expectedAction = "book_call",
 ): Promise<{ success: boolean; score?: number }> {
-  // Allow dev/test tokens
+  // Allow dev/test tokens in development or test suites
   if (
-    process.env.NODE_ENV === "development" &&
-    (token === "dev-bypass" || token === "test-token" || token.length < 10)
+    (process.env.NODE_ENV === "development" ||
+      process.env.NODE_ENV === "test") &&
+    (token === "dev-bypass" ||
+      token === "test-token" ||
+      token === "test-valid-token" ||
+      token.length < 10)
   ) {
     return { success: true, score: 90 };
+  }
+
+  if (
+    (process.env.NODE_ENV === "development" ||
+      process.env.NODE_ENV === "test") &&
+    (token === "test-invalid-token" || token === "test-low-score-token")
+  ) {
+    return { success: false, score: 30 };
   }
 
   try {
@@ -51,8 +68,25 @@ async function verifyRecaptcha(
       return { success: false };
     }
 
-    const score =
-      typeof data.score === "number" ? Math.round(data.score * 100) : 90;
+    // Verify action match
+    if (data.action && data.action !== expectedAction) {
+      console.warn(
+        `[reCAPTCHA] Action mismatch: expected ${expectedAction}, received ${data.action}`,
+      );
+      return {
+        success: false,
+        score:
+          typeof data.score === "number" ? Math.round(data.score * 100) : 0,
+      };
+    }
+
+    const rawScore = typeof data.score === "number" ? data.score : 0.9;
+    // Score threshold check >= 0.5 per §4.3
+    if (rawScore < 0.5) {
+      return { success: false, score: Math.round(rawScore * 100) };
+    }
+
+    const score = Math.round(rawScore * 100);
     return { success: true, score };
   } catch (err) {
     console.error("[reCAPTCHA] Verification error:", err);
@@ -65,8 +99,8 @@ async function verifyRecaptcha(
 
 /**
  * Public action for visitors to submit consultation requests or contact inquiries.
- * Integrates rate limiting, honeypot spam protection, reCAPTCHA v3, Neon DB persistence,
- * and branded React Email notifications via Brevo.
+ * Integrates rate limiting, honeypot spam protection, dwell-time analysis, reCAPTCHA v3,
+ * Neon DB persistence, and branded React Email notifications via Brevo.
  */
 export async function submitLeadInquiryAction(rawInput: unknown) {
   // 1. Honeypot check: spambots fill hidden websiteUrl
@@ -80,6 +114,24 @@ export async function submitLeadInquiryAction(rawInput: unknown) {
       success: true,
       message: "Thank you for contacting Finergetics Advisory Services.",
     };
+  }
+
+  // 1b. Dwell time check: reject automated bot scripts submitting faster than humanly possible (<1.5s)
+  if (
+    typeof rawInput === "object" &&
+    rawInput !== null &&
+    "formLoadedAt" in rawInput
+  ) {
+    const loadedAt = Number(
+      (rawInput as { formLoadedAt: unknown }).formLoadedAt,
+    );
+    if (loadedAt && Date.now() - loadedAt < MIN_FORM_DWELL_TIME_MS) {
+      // Silently swallow bot submission without leaking detection
+      return {
+        success: true,
+        message: "Thank you for contacting Finergetics Advisory Services.",
+      };
+    }
   }
 
   // 2. Rate limit verification (5 requests per hour per IP)
@@ -103,8 +155,24 @@ export async function submitLeadInquiryAction(rawInput: unknown) {
     };
   }
 
+  // 3b. Dual Rate limit: verify per-email limit to prevent targeted inbox flooding
+  const emailRateLimit = await checkRateLimit(
+    "book_call",
+    `email:${validated.data.email.toLowerCase()}`,
+  );
+  if (!emailRateLimit.allowed) {
+    return {
+      success: false,
+      error:
+        "Too many consultation requests for this email address. Please wait an hour or contact us directly at info@finergetics.com.",
+    };
+  }
+
   // 4. reCAPTCHA verification
-  const recaptcha = await verifyRecaptcha(validated.data.recaptchaToken);
+  const recaptcha = await verifyRecaptcha(
+    validated.data.recaptchaToken,
+    validated.data.type || "book_call",
+  );
   if (!recaptcha.success) {
     return {
       success: false,
@@ -124,18 +192,24 @@ export async function submitLeadInquiryAction(rawInput: unknown) {
     .digest("hex")
     .substring(0, 32);
 
-  // 6. Neon DB insertion
+  // 6. Neon DB insertion with sanitized text
   const [newLead] = await db
     .insert(leads)
     .values({
       type: validated.data.type,
-      name: validated.data.name,
-      email: validated.data.email,
-      phone: validated.data.phone || null,
-      company: validated.data.company || null,
+      name: sanitizeSecurityInput(validated.data.name),
+      email: validated.data.email.toLowerCase().trim(),
+      phone: validated.data.phone
+        ? sanitizeSecurityInput(validated.data.phone)
+        : null,
+      company: validated.data.company
+        ? sanitizeSecurityInput(validated.data.company)
+        : null,
       interest: validated.data.interest || null,
       preferredTime: validated.data.preferredTime || null,
-      message: validated.data.message || null,
+      message: validated.data.message
+        ? sanitizeSecurityInput(validated.data.message)
+        : null,
       recaptchaScore: recaptcha.score ?? 90,
       ipHash,
       status: "new",

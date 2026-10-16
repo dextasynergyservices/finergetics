@@ -12,7 +12,7 @@ import {
   ShieldCheck,
   User,
 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { submitLeadInquiryAction } from "@/server/actions/leads";
 
 const ADVISORY_AREAS = [
@@ -41,6 +41,13 @@ export function ConsultationForm() {
   const [preferredTime, setPreferredTime] = useState<string>(TIMING_OPTIONS[0]);
   const [message, setMessage] = useState("");
   const [websiteUrl, setWebsiteUrl] = useState(""); // Honeypot trap for bots
+  const [formLoadedAt, setFormLoadedAt] = useState<number | undefined>(
+    undefined,
+  );
+
+  useEffect(() => {
+    setFormLoadedAt(Date.now());
+  }, []);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -105,6 +112,7 @@ export function ConsultationForm() {
         message: message.trim() || undefined,
         recaptchaToken,
         websiteUrl,
+        formLoadedAt,
       });
 
       if (!res.success) {

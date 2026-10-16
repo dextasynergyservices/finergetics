@@ -9,7 +9,10 @@ export default function NotFound() {
     <div className="min-h-screen flex flex-col bg-sky-50 text-foreground overflow-x-hidden max-w-full">
       <Header />
 
-      <main className="flex-1 flex items-center justify-center pt-32 pb-24 px-4 sm:px-6">
+      <main
+        id="main-content"
+        className="flex-1 flex items-center justify-center pt-32 pb-24 px-4 sm:px-6"
+      >
         <div className="max-w-2xl w-full text-center space-y-8 bg-white rounded-3xl p-8 sm:p-14 border border-silver-400/25 shadow-xl">
           <div className="w-20 h-20 rounded-3xl bg-royal-50 border border-royal-600/20 text-royal-600 flex items-center justify-center mx-auto shadow-sm">
             <Compass className="w-10 h-10 animate-spin-slow" />

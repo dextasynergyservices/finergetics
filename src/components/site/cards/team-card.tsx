@@ -1,5 +1,7 @@
+import Image from "next/image";
 import Link from "next/link";
 import { HoverCard } from "@/components/motion/hover-card";
+import type { ImageRef } from "@/lib/schemas/common";
 import { cn } from "@/lib/utils";
 
 function LinkedInIcon({ className = "w-4 h-4" }: { className?: string }) {
@@ -20,6 +22,10 @@ export interface TeamCardProps {
   name: string;
   roleTitle: string;
   credentials?: string;
+  photo?:
+    | ImageRef
+    | { publicId: string; alt?: string; width?: number; height?: number }
+    | null;
   highlights?: string[];
   bioSummary?: string;
   linkedinUrl?: string;
@@ -31,38 +37,67 @@ export function TeamCard({
   name,
   roleTitle,
   credentials,
+  photo,
   highlights = [],
   bioSummary,
   linkedinUrl,
   className = "",
 }: TeamCardProps) {
+  const initials = name
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .slice(0, 2);
+
+  const imgWidth = photo && "width" in photo && photo.width ? photo.width : 422;
+  const imgHeight =
+    photo && "height" in photo && photo.height ? photo.height : 456;
+
   return (
     <HoverCard
       className={cn(
-        "rounded-3xl p-6 sm:p-8 md:p-10 bg-white border border-silver-400/25 flex flex-col justify-between shadow-sm hover:border-royal-600/40 transition-all",
+        "rounded-3xl p-6 sm:p-8 bg-white border border-silver-400/25 flex flex-col justify-between shadow-sm hover:border-royal-600/40 transition-all group",
         className,
       )}
     >
       <div>
-        {/* Header Avatar Placeholder / Monogram */}
-        <div className="flex items-start justify-between gap-4 mb-6">
-          <div className="w-16 h-16 rounded-2xl bg-sky-50 border border-silver-400/20 flex items-center justify-center text-royal-700 font-display text-2xl group-hover:bg-royal-600 group-hover:text-white transition-colors">
-            {name
-              .split(" ")
-              .map((n) => n[0])
-              .join("")
-              .slice(0, 2)}
-          </div>
+        {/* Executive Portrait Container */}
+        <div className="relative w-full rounded-2xl overflow-hidden mb-6 bg-slate-50 border border-silver-400/20 group/photo flex items-center justify-center">
+          {photo?.publicId ? (
+            <div className="relative w-full flex items-center justify-center bg-slate-50">
+              <Image
+                src={photo.publicId}
+                alt={photo.alt || `${name} — ${roleTitle}`}
+                width={imgWidth}
+                height={imgHeight}
+                className="w-full h-auto object-contain rounded-2xl"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              />
+            </div>
+          ) : (
+            <div className="w-full h-64 flex flex-col items-center justify-center bg-gradient-to-br from-sky-50 via-sky-100/60 to-white p-6 relative">
+              <div className="w-24 h-24 rounded-full bg-white border border-silver-400/25 flex items-center justify-center text-royal-700 font-display text-4xl shadow-md">
+                {initials}
+              </div>
+              <p className="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500">
+                Principal Consultant
+              </p>
+            </div>
+          )}
+
+          {/* Floating LinkedIn Icon Button */}
           {linkedinUrl && (
-            <a
-              href={linkedinUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2.5 rounded-full bg-sky-50 text-slate-600 hover:text-royal-600 hover:bg-sky-100 transition-colors"
-              aria-label={`${name}'s LinkedIn profile`}
-            >
-              <LinkedInIcon className="w-4 h-4" />
-            </a>
+            <div className="absolute top-3 right-3 z-10">
+              <a
+                href={linkedinUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2.5 rounded-full bg-white/90 backdrop-blur-xs text-slate-700 hover:text-royal-600 hover:bg-white shadow-sm transition-all inline-flex items-center justify-center"
+                aria-label={`${name}'s LinkedIn profile`}
+              >
+                <LinkedInIcon className="w-4 h-4" />
+              </a>
+            </div>
           )}
         </div>
 

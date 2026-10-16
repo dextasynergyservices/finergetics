@@ -1,5 +1,6 @@
 import { ArrowLeft, CheckCircle2, Mail, Phone, Shield } from "lucide-react";
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Reveal } from "@/components/motion/reveal";
@@ -111,7 +112,10 @@ export default async function TeamMemberPage({ params }: TeamMemberPageProps) {
 
       <Header />
 
-      <main className="flex-1 pt-28 pb-16 sm:pt-36 sm:pb-24 overflow-x-hidden max-w-full">
+      <main
+        id="main-content"
+        className="flex-1 pt-28 pb-16 sm:pt-36 sm:pb-24 overflow-x-hidden max-w-full"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 space-y-12">
           {/* Breadcrumb Back Link */}
           <Link
@@ -126,22 +130,38 @@ export default async function TeamMemberPage({ params }: TeamMemberPageProps) {
           <Reveal>
             <div className="bg-white rounded-3xl p-6 sm:p-10 md:p-12 border border-silver-400/25 shadow-sm">
               <div className="flex flex-col md:flex-row md:items-start justify-between gap-8">
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-6">
-                  {/* Monogram Badge */}
-                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-3xl bg-sky-50 border border-silver-400/25 flex items-center justify-center text-royal-700 font-display text-2xl sm:text-3xl shadow-sm shrink-0">
-                    {initials}
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-8">
+                  {/* Executive Portrait Frame */}
+                  <div className="relative w-64 sm:w-72 md:w-80 rounded-3xl overflow-hidden bg-slate-50 border border-silver-400/25 shadow-sm shrink-0 flex items-center justify-center">
+                    {member.photo?.publicId ? (
+                      <Image
+                        src={member.photo.publicId}
+                        alt={
+                          member.photo.alt || `${member.name} — ${member.role}`
+                        }
+                        width={member.photo.width || 422}
+                        height={member.photo.height || 456}
+                        priority
+                        className="w-full h-auto object-contain rounded-3xl"
+                        sizes="(max-width: 640px) 256px, 320px"
+                      />
+                    ) : (
+                      <div className="w-full h-72 flex flex-col items-center justify-center bg-gradient-to-br from-sky-50 via-sky-100/70 to-white text-royal-700 font-display text-5xl sm:text-6xl">
+                        {initials}
+                      </div>
+                    )}
                   </div>
 
-                  <div className="space-y-1.5">
-                    <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-4xl uppercase tracking-tight text-navy-950">
+                  <div className="space-y-3">
+                    {member.credentials && (
+                      <div className="inline-block px-3.5 py-1 rounded-full bg-sky-100/70 text-royal-800 text-xs font-bold tracking-wide">
+                        {member.credentials}
+                      </div>
+                    )}
+                    <h1 className="font-display text-2xl sm:text-3xl md:text-4xl lg:text-5xl uppercase tracking-tight text-navy-950">
                       {member.name}
-                      {member.credentials && (
-                        <span className="text-base sm:text-lg font-sans font-semibold text-slate-500 normal-case ml-2.5">
-                          ({member.credentials})
-                        </span>
-                      )}
                     </h1>
-                    <p className="text-sm sm:text-base font-bold text-royal-600">
+                    <p className="text-base sm:text-lg font-bold text-royal-600">
                       {member.role}
                     </p>
                   </div>

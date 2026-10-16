@@ -97,7 +97,10 @@ export default async function ServiceDetailPage({
 
       <Header />
 
-      <main className="flex-1 pt-28 pb-16 sm:pt-36 sm:pb-24 overflow-x-hidden max-w-full">
+      <main
+        id="main-content"
+        className="flex-1 pt-28 pb-16 sm:pt-36 sm:pb-24 overflow-x-hidden max-w-full"
+      >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-12 space-y-12">
           {/* Back Navigation */}
           <Link

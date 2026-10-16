@@ -1,5 +1,6 @@
 import { ArrowLeft, Calendar, Clock } from "lucide-react";
 import type { Metadata } from "next";
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Reveal } from "@/components/motion/reveal";
@@ -114,7 +115,10 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
 
       <Header />
 
-      <main className="flex-1 pt-28 pb-16 sm:pt-36 sm:pb-24 overflow-x-hidden max-w-full">
+      <main
+        id="main-content"
+        className="flex-1 pt-28 pb-16 sm:pt-36 sm:pb-24 overflow-x-hidden max-w-full"
+      >
         <article className="max-w-4xl mx-auto px-4 sm:px-6 md:px-12 space-y-10">
           {/* Back Navigation */}
           <Link
@@ -197,6 +201,20 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
             </div>
           )}
 
+          {/* Featured Article Cover Image */}
+          {post.cover?.publicId && (
+            <div className="relative w-full aspect-[16/9] sm:aspect-[21/9] rounded-3xl overflow-hidden border border-silver-400/25 shadow-sm">
+              <Image
+                src={post.cover.publicId}
+                alt={post.cover.alt || post.title}
+                fill
+                priority
+                className="object-cover"
+                sizes="(max-width: 1024px) 100vw, 896px"
+              />
+            </div>
+          )}
+
           {/* Article Body Content */}
           <div className="bg-white rounded-3xl p-6 sm:p-10 md:p-14 border border-silver-400/25 shadow-sm space-y-6">
             <RichTextRenderer content={post.body as Record<string, unknown>} />
@@ -265,6 +283,7 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
                     slug={related.slug}
                     title={related.title}
                     excerpt={related.excerpt}
+                    cover={related.cover}
                     categoryName={related.categoryName}
                     authorName={related.authorName}
                     readingMinutes={related.readingMinutes}
