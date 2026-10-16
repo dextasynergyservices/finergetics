@@ -18,7 +18,7 @@ import {
 } from "@/server/db/schema";
 
 export async function getAdminSiteSettings() {
-  await requireRole("editor");
+  await requireAdmin();
   const row = await db
     .select()
     .from(siteSettings)

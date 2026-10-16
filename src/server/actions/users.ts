@@ -3,18 +3,13 @@
 import crypto from "node:crypto";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { inviteUserSchema } from "@/lib/schemas/user";
 import { recordAuditLog } from "@/server/audit/audit";
 import { auth } from "@/server/auth/auth";
 import { requireAdmin } from "@/server/auth/guard";
 import { db } from "@/server/db/client";
 import { account, adminInvitations, user } from "@/server/db/schema";
 import { sendAdminInvitationEmail } from "@/server/email/send";
-
-const inviteUserSchema = z.object({
-  name: z.string().min(2, "Full name must be at least 2 characters"),
-  email: z.string().email("Please provide a valid work email address"),
-  role: z.enum(["admin", "editor"]).default("editor"),
-});
 
 /**
  * Invites a new team member by creating an invitation token and sending

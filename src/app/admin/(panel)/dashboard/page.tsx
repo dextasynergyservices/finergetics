@@ -281,13 +281,13 @@ export default async function AdminDashboardPage() {
             </div>
           </div>
 
-          {/* Inbound Enquiries Card */}
-          <div className="rounded-3xl bg-white p-6 sm:p-8 border border-silver-400/25 shadow-xs space-y-4">
-            <div className="flex items-center justify-between">
-              <h2 className="font-display text-lg uppercase tracking-tight text-ink-900">
-                Inbound Inquiries
-              </h2>
-              {role === "admin" && (
+          {/* Inbound Enquiries Card (Admin Only) */}
+          {role === "admin" && (
+            <div className="rounded-3xl bg-white p-6 sm:p-8 border border-silver-400/25 shadow-xs space-y-4">
+              <div className="flex items-center justify-between">
+                <h2 className="font-display text-lg uppercase tracking-tight text-ink-900">
+                  Inbound Inquiries
+                </h2>
                 <Link
                   href="/admin/leads"
                   className="text-xs font-semibold text-royal-600 hover:text-royal-700 transition-colors inline-flex items-center gap-1"
@@ -295,43 +295,43 @@ export default async function AdminDashboardPage() {
                   <span>View Inbox</span>
                   <ArrowUpRight className="w-3.5 h-3.5" />
                 </Link>
+              </div>
+              {recentLeads.length === 0 ? (
+                <div className="p-4 rounded-2xl bg-sky-50/50 border border-silver-400/20 text-center space-y-2">
+                  <Inbox className="w-6 h-6 text-slate-400 mx-auto" />
+                  <p className="text-xs font-bold text-ink-900">
+                    No Pending Inquiries
+                  </p>
+                  <p className="text-[11px] text-slate-500 leading-relaxed">
+                    Client consultation requests submitted through the website
+                    will appear here in real-time.
+                  </p>
+                </div>
+              ) : (
+                <div className="space-y-2.5">
+                  {recentLeads.map((lead) => (
+                    <Link
+                      key={lead.id}
+                      href="/admin/leads"
+                      className="p-3 rounded-xl bg-sky-50/60 hover:bg-sky-100/60 transition-colors block border border-silver-400/15"
+                    >
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs font-bold text-ink-900 truncate">
+                          {lead.name}
+                        </p>
+                        <span className="px-2 py-0.5 rounded-full bg-royal-100 text-royal-800 text-[10px] font-bold uppercase tracking-wider">
+                          {lead.status}
+                        </span>
+                      </div>
+                      <p className="text-[11px] text-slate-500 truncate mt-0.5">
+                        {lead.company || lead.email}
+                      </p>
+                    </Link>
+                  ))}
+                </div>
               )}
             </div>
-            {recentLeads.length === 0 ? (
-              <div className="p-4 rounded-2xl bg-sky-50/50 border border-silver-400/20 text-center space-y-2">
-                <Inbox className="w-6 h-6 text-slate-400 mx-auto" />
-                <p className="text-xs font-bold text-ink-900">
-                  No Pending Inquiries
-                </p>
-                <p className="text-[11px] text-slate-500 leading-relaxed">
-                  Client consultation requests submitted through the website
-                  will appear here in real-time.
-                </p>
-              </div>
-            ) : (
-              <div className="space-y-2.5">
-                {recentLeads.map((lead) => (
-                  <Link
-                    key={lead.id}
-                    href="/admin/leads"
-                    className="p-3 rounded-xl bg-sky-50/60 hover:bg-sky-100/60 transition-colors block border border-silver-400/15"
-                  >
-                    <div className="flex items-center justify-between">
-                      <p className="text-xs font-bold text-ink-900 truncate">
-                        {lead.name}
-                      </p>
-                      <span className="px-2 py-0.5 rounded-full bg-royal-100 text-royal-800 text-[10px] font-bold uppercase tracking-wider">
-                        {lead.status}
-                      </span>
-                    </div>
-                    <p className="text-[11px] text-slate-500 truncate mt-0.5">
-                      {lead.company || lead.email}
-                    </p>
-                  </Link>
-                ))}
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
     </div>

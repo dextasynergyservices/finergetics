@@ -170,6 +170,12 @@ async function seed() {
       name: "Rotimi Lawuyi",
       role: "Lead Consultant",
       credentials: "FCA, FCIB, PhD",
+      photo: {
+        publicId: "/images/rotimi-lawuyi.jpg",
+        width: 1200,
+        height: 1600,
+        alt: "Rotimi Lawuyi, Lead Consultant at Finergetics",
+      },
       highlights: [
         "30+ years in banking & Oil & Gas Finance",
         "Specialist in business & financial controls",
@@ -783,6 +789,10 @@ async function seed() {
             ctaPrimaryLink: "/book-a-call",
             ctaSecondaryText: "Our Practice Disciplines",
             ctaSecondaryLink: "/services",
+            backgroundImage: {
+              publicId: "/images/about_hero_bg.jpg",
+              alt: "Finergetics Corporate Advisory Leadership",
+            },
           },
         },
         {
@@ -1072,6 +1082,10 @@ async function seed() {
               "Authoritative analysis on petroleum fiscal regimes, joint venture accounting, upstream cost recovery, and corporate capital discipline.",
             ctaPrimaryText: "Consult Our Authors",
             ctaPrimaryLink: "/book-a-call",
+            backgroundImage: {
+              publicId: "/images/insights_hero_bg.jpg",
+              alt: "Finergetics Energy Economics & Insights Intelligence",
+            },
           },
         },
         {

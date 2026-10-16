@@ -1,5 +1,6 @@
 import { TeamCard } from "@/components/site/cards/team-card";
 import { SectionHeading } from "@/components/site/section-heading";
+import type { ImageRef } from "@/lib/schemas/common";
 import type { TeamSection } from "@/lib/schemas/sections";
 
 export interface TeamMemberData {
@@ -9,6 +10,7 @@ export interface TeamMemberData {
   role: string;
   credentials?: string | null;
   highlights?: string[] | null;
+  photo?: ImageRef | { publicId: string; alt?: string } | null;
   linkedinUrl?: string | null;
 }
 
@@ -48,6 +50,7 @@ export function TeamSectionComponent({
               name={member.name}
               roleTitle={member.role}
               credentials={member.credentials || undefined}
+              photo={member.photo}
               highlights={member.highlights || undefined}
               linkedinUrl={member.linkedinUrl || undefined}
             />

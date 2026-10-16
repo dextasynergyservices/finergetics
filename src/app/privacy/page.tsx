@@ -60,7 +60,7 @@ export default async function PrivacyPage() {
 
       <Header />
 
-      <main className="flex-1 overflow-x-hidden max-w-full">
+      <main id="main-content" className="flex-1 overflow-x-hidden max-w-full">
         {/* Render CMS Sections configured in Admin (Hero, etc.) */}
         <SectionRenderer sections={sections} />
 
