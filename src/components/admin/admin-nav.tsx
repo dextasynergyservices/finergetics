@@ -39,7 +39,12 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Team Members", href: "/admin/team", icon: Users },
   { label: "Case Studies", href: "/admin/case-studies", icon: FolderKanban },
   { label: "Blog & Insights", href: "/admin/posts", icon: Newspaper },
-  { label: "Leads & Enquiries", href: "/admin/leads", icon: Inbox },
+  {
+    label: "Leads & Enquiries",
+    href: "/admin/leads",
+    icon: Inbox,
+    adminOnly: true,
+  },
   { label: "Media Library", href: "/admin/media", icon: ImageIcon },
   {
     label: "Site Settings",

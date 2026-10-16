@@ -25,6 +25,8 @@ export const bookCallSchema = z.object({
   recaptchaToken: z.string().min(1, "reCAPTCHA verification is required"),
   // Honeypot field (must remain empty for legitimate human visitors)
   websiteUrl: z.string().max(0, "Bot detected").optional().default(""),
+  // Form render timestamp for minimum dwell-time verification
+  formLoadedAt: z.number().optional(),
 });
 
 export type BookCallInput = z.infer<typeof bookCallSchema>;
@@ -47,6 +49,7 @@ export const publicInquirySchema = z.object({
     .max(0, "Automated submission detected")
     .optional()
     .default(""),
+  formLoadedAt: z.number().optional(),
 });
 
 export type PublicInquiryInput = z.infer<typeof publicInquirySchema>;
@@ -66,6 +69,7 @@ export const contactFormSchema = z.object({
     .max(2000, "Message cannot exceed 2000 characters"),
   recaptchaToken: z.string().min(1, "reCAPTCHA verification is required"),
   websiteUrl: z.string().max(0, "Bot detected").optional().default(""),
+  formLoadedAt: z.number().optional(),
 });
 
 export type ContactFormInput = z.infer<typeof contactFormSchema>;

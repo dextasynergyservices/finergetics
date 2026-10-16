@@ -23,7 +23,7 @@ export function Footer() {
               value. Independent advisory for oil & gas operators, JV partners,
               energy investors, and infrastructure institutions.
             </p>
-            <p className="text-xs text-silver-400/60 pt-2">
+            <p className="text-xs text-silver-400/90 pt-2">
               CAC Registered · Independent Energy & Financial Advisory
             </p>
           </div>
@@ -125,7 +125,7 @@ export function Footer() {
             </p>
             <div className="space-y-2.5 text-sm text-silver-400">
               <p>
-                <span className="block text-xs uppercase text-silver-400/60">
+                <span className="block text-xs uppercase text-silver-400/90">
                   Email
                 </span>
                 <a
@@ -136,7 +136,7 @@ export function Footer() {
                 </a>
               </p>
               <p>
-                <span className="block text-xs uppercase text-silver-400/60">
+                <span className="block text-xs uppercase text-silver-400/90">
                   Telephone
                 </span>
                 <a
@@ -152,7 +152,7 @@ export function Footer() {
                   +234 810 040 3013
                 </a>
               </p>
-              <p className="text-xs text-silver-400/70 pt-1">
+              <p className="text-xs text-silver-400/90 pt-1">
                 Mon – Fri: 8:00 AM – 6:00 PM (WAT / GMT+1)
               </p>
             </div>
@@ -160,7 +160,7 @@ export function Footer() {
         </div>
 
         {/* Bottom Strip */}
-        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-silver-400/70">
+        <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-silver-400">
           <p>© 2026 Finergetics Consulting Limited. All rights reserved.</p>
           <div className="flex items-center gap-6">
             <Link
@@ -174,7 +174,7 @@ export function Footer() {
             </Link>
             <Link
               href="/admin/login"
-              className="text-silver-400/40 hover:text-silver-400 transition-colors"
+              className="text-silver-400 hover:text-white transition-colors"
             >
               CMS Portal
             </Link>

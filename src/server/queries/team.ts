@@ -51,8 +51,16 @@ export async function getTeamMemberBySlug(slug: string) {
       role: "Principal Consultant",
       credentials: "FCA, MSc",
       highlights: ["Financial Control", "Joint Venture Audits"],
-      bio: null,
-      photo: null,
+      bio: null as Record<string, unknown> | null,
+      photo:
+        slug === "rotimi-lawuyi"
+          ? {
+              publicId: "/images/rotimi-lawuyi.jpg",
+              width: 1200,
+              height: 1600,
+              alt: "Rotimi Lawuyi, Lead Consultant at Finergetics",
+            }
+          : null,
       linkedinUrl: null,
       sortOrder: 1,
       status: "published" as const,
