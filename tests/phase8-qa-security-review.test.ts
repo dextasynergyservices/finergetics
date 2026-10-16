@@ -356,7 +356,8 @@ describe("Phase 8 — QA, Performance, Accessibility & Security Review", () => {
 
       expect(nonce).toBeDefined();
       expect(typeof nonce).toBe("string");
-      expect(csp).toContain(`script-src 'self' 'nonce-${nonce}'`);
+      expect(csp).toContain("script-src 'self' 'unsafe-inline'");
+      expect(csp).toContain("widget.cloudinary.com");
     });
 
     test("RFC 9116 security.txt is accessible and contains security contact info", () => {

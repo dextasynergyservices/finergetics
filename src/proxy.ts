@@ -21,10 +21,7 @@ export function proxy(request: NextRequest) {
 
   const adminCsp = [
     "default-src 'self'",
-    `script-src 'self' 'nonce-${nonce}' 'unsafe-inline' 'unsafe-eval' https://widget.cloudinary.com https://upload-widget.cloudinary.com https://*.cloudinary.com`.replace(
-      /\s+/g,
-      " ",
-    ),
+    "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://widget.cloudinary.com https://upload-widget.cloudinary.com https://*.cloudinary.com",
     "style-src 'self' 'unsafe-inline'",
     "img-src 'self' data: blob: https://res.cloudinary.com https://*.cloudinary.com",
     `connect-src 'self' ${isDev ? "ws: wss: http: https:" : "https://api.cloudinary.com https://*.cloudinary.com https://res.cloudinary.com https://upload-widget.cloudinary.com"}`.replace(
