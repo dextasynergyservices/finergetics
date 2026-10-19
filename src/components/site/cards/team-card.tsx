@@ -56,96 +56,129 @@ export function TeamCard({
   return (
     <HoverCard
       className={cn(
-        "rounded-3xl p-6 sm:p-8 bg-white border border-silver-400/25 flex flex-col justify-between shadow-sm hover:border-royal-600/40 transition-all group",
+        "relative rounded-3xl p-6 sm:p-7 md:p-8 bg-white border border-slate-200/80 shadow-[0_4px_24px_-4px_rgba(6,16,97,0.06)] hover:shadow-[0_16px_36px_-6px_rgba(6,16,97,0.12)] hover:border-royal-500/40 transition-all duration-300 flex flex-col justify-between group overflow-hidden",
         className,
       )}
     >
       <div>
-        {/* Executive Portrait Container */}
-        <div className="relative w-full rounded-2xl overflow-hidden mb-6 bg-slate-50 border border-silver-400/20 group/photo flex items-center justify-center">
-          {photo?.publicId ? (
-            <div className="relative w-full flex items-center justify-center bg-slate-50">
+        {/* Top Section: Stretched Portrait on left + Balanced Write-up on right */}
+        <div className="flex flex-col sm:flex-row items-stretch gap-5 sm:gap-6 mb-2">
+          {/* Executive Portrait Container — Balanced height, no harsh cutoff */}
+          <div className="relative w-full sm:w-36 md:w-44 shrink-0 rounded-2xl overflow-hidden bg-slate-900 shadow-md ring-1 ring-black/10 group-hover:ring-royal-500/30 transition-all flex flex-col items-center justify-center min-h-[180px] sm:min-h-[220px]">
+            {photo?.publicId ? (
               <Image
                 src={photo.publicId}
                 alt={photo.alt || `${name} — ${roleTitle}`}
                 width={imgWidth}
                 height={imgHeight}
-                className="w-full h-auto object-contain rounded-2xl"
-                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                className="w-full h-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                sizes="(max-width: 640px) 100vw, (max-width: 768px) 144px, 176px"
               />
-            </div>
-          ) : (
-            <div className="w-full h-64 flex flex-col items-center justify-center bg-gradient-to-br from-sky-50 via-sky-100/60 to-white p-6 relative">
-              <div className="w-24 h-24 rounded-full bg-white border border-silver-400/25 flex items-center justify-center text-royal-700 font-display text-4xl shadow-md">
-                {initials}
+            ) : (
+              <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-royal-950 via-navy-950 to-slate-900 text-white p-6 min-h-[220px]">
+                <div className="w-16 h-16 rounded-2xl bg-white/10 backdrop-blur-xs border border-white/20 flex items-center justify-center text-white font-display text-2xl font-bold shadow-inner">
+                  {initials}
+                </div>
+                <span className="mt-3 text-[10px] font-bold uppercase tracking-wider text-sky-200/80">
+                  Principal Advisory
+                </span>
               </div>
-              <p className="mt-4 text-xs font-bold uppercase tracking-wider text-slate-500">
-                Principal Consultant
+            )}
+          </div>
+
+          {/* Write-up to the right of the image */}
+          <div className="flex-1 min-w-0 flex flex-col justify-between space-y-3">
+            <div>
+              {/* Top row: Credentials badge + LinkedIn */}
+              <div className="flex items-center justify-between gap-2 mb-2">
+                {credentials ? (
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-md bg-royal-50 text-royal-800 text-[11px] font-bold tracking-wide border border-royal-200/50">
+                    {credentials}
+                  </span>
+                ) : (
+                  <span />
+                )}
+
+                {linkedinUrl && (
+                  <a
+                    href={linkedinUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="p-1.5 rounded-lg text-slate-400 hover:text-[#0A66C2] hover:bg-sky-50 border border-transparent hover:border-sky-200/60 transition-all inline-flex items-center justify-center shrink-0"
+                    aria-label={`${name}'s LinkedIn profile`}
+                  >
+                    <LinkedInIcon className="w-4 h-4" />
+                  </a>
+                )}
+              </div>
+
+              <h3 className="font-display text-xl sm:text-2xl font-bold tracking-tight text-ink-950 group-hover:text-royal-600 transition-colors leading-tight">
+                {name}
+              </h3>
+
+              <p className="text-sm font-semibold text-royal-700 flex items-center gap-1.5 mt-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-royal-600 inline-block" />
+                {roleTitle}
               </p>
-            </div>
-          )}
 
-          {/* Floating LinkedIn Icon Button */}
-          {linkedinUrl && (
-            <div className="absolute top-3 right-3 z-10">
-              <a
-                href={linkedinUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="p-2.5 rounded-full bg-white/90 backdrop-blur-xs text-slate-700 hover:text-royal-600 hover:bg-white shadow-sm transition-all inline-flex items-center justify-center"
-                aria-label={`${name}'s LinkedIn profile`}
-              >
-                <LinkedInIcon className="w-4 h-4" />
-              </a>
+              {bioSummary && (
+                <p className="text-slate-600 text-xs sm:text-sm leading-relaxed line-clamp-2 mt-2">
+                  {bioSummary}
+                </p>
+              )}
             </div>
-          )}
+
+            {/* Key Experience Highlights — Beside the image with custom checkmark bullets */}
+            {highlights.length > 0 && (
+              <div className="pt-2.5 border-t border-slate-100 space-y-2">
+                <p className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  Key Experience
+                </p>
+                <ul className="space-y-1.5 text-xs text-slate-700">
+                  {highlights.map((h) => (
+                    <li key={h} className="flex items-start gap-2 leading-snug">
+                      <span className="mt-0.5 w-3.5 h-3.5 rounded-full bg-royal-50 text-royal-600 flex items-center justify-center shrink-0 border border-royal-200/60">
+                        <svg
+                          className="w-2 h-2"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                          strokeWidth={3}
+                          aria-hidden="true"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            d="M5 13l4 4L19 7"
+                          />
+                        </svg>
+                      </span>
+                      <span className="text-slate-700 font-medium">{h}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
         </div>
-
-        {/* Credentials Pill */}
-        {credentials && (
-          <div className="inline-block px-3 py-1 rounded-full bg-sky-100/70 text-royal-800 text-xs font-bold tracking-wide mb-3">
-            {credentials}
-          </div>
-        )}
-
-        <h3 className="font-display text-2xl uppercase tracking-tight text-ink-900 group-hover:text-royal-600 transition-colors">
-          {name}
-        </h3>
-        <p className="text-sm font-semibold text-royal-700 mt-1 mb-4">
-          {roleTitle}
-        </p>
-
-        {bioSummary && (
-          <p className="text-slate-600 text-sm leading-relaxed mb-6">
-            {bioSummary}
-          </p>
-        )}
-
-        {highlights.length > 0 && (
-          <div className="space-y-2 pt-4 border-t border-silver-400/20">
-            <p className="text-xs font-semibold uppercase tracking-wider text-slate-600">
-              Key Experience:
-            </p>
-            <ul className="space-y-1 text-xs text-slate-600">
-              {highlights.map((h) => (
-                <li key={h} className="flex items-start gap-2">
-                  <span className="text-royal-600 font-bold">•</span>
-                  <span>{h}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        )}
       </div>
 
-      <div className="pt-6 mt-6 border-t border-silver-400/15">
+      {/* Underneath: Only View Consultant Profile Link with refined interactive arrow */}
+      <div className="pt-4 mt-5 border-t border-slate-100 flex items-center justify-between">
         <Link
           href={`/about/team/${slug}`}
-          className="text-xs font-bold uppercase tracking-wider text-royal-600 hover:text-royal-700 transition-colors flex items-center gap-1.5"
+          className="inline-flex items-center gap-2.5 text-xs sm:text-[13px] font-bold text-royal-700 group-hover:text-royal-600 transition-colors"
         >
-          <span>View Consultant Profile</span>
-          <span>→</span>
+          <span className="uppercase tracking-wider">
+            View Consultant Profile
+          </span>
+          <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-royal-50 text-royal-700 border border-royal-200/50 group-hover:bg-royal-600 group-hover:text-white group-hover:border-royal-600 transition-all duration-200 transform group-hover:translate-x-1">
+            →
+          </span>
         </Link>
+        <span className="text-[11px] font-medium text-slate-400 uppercase tracking-wider hidden sm:inline-block">
+          Principal Advisory
+        </span>
       </div>
     </HoverCard>
   );
