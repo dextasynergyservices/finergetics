@@ -2,9 +2,22 @@ import { z } from "zod";
 
 export const imageRefSchema = z.object({
   publicId: z.string().min(1, "Cloudinary public ID is required"),
-  width: z.number().int().positive("Width must be positive"),
-  height: z.number().int().positive("Height must be positive"),
-  alt: z.string().default(""),
+  width: z.coerce
+    .number()
+    .int()
+    .positive("Width must be positive")
+    .nullish()
+    .transform((val) => val || 1200),
+  height: z.coerce
+    .number()
+    .int()
+    .positive("Height must be positive")
+    .nullish()
+    .transform((val) => val || 800),
+  alt: z
+    .string()
+    .nullish()
+    .transform((val) => val || ""),
   blur: z.string().optional(),
 });
 

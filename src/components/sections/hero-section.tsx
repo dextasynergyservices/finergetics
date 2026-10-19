@@ -21,13 +21,13 @@ export function HeroSectionComponent({ section }: HeroSectionComponentProps) {
             alt={data.backgroundImage.alt || "Finergetics Corporate Advisory"}
             fill
             priority
-            className="object-cover object-right lg:object-center select-none opacity-20 sm:opacity-25 transition-opacity"
+            className="object-cover object-right lg:object-center select-none opacity-85 sm:opacity-90 transition-opacity"
             sizes="100vw"
           />
-          {/* Multi-layer protective gradient overlay ensuring pristine typography legibility */}
-          <div className="absolute inset-0 bg-gradient-to-r from-white via-white/90 via-50% to-white/60" />
-          <div className="absolute bottom-0 inset-x-0 h-28 bg-gradient-to-t from-background via-background/80 to-transparent" />
-          <div className="absolute top-0 inset-x-0 h-24 bg-gradient-to-b from-white to-transparent" />
+          {/* Multi-layer protective directional gradient ensuring clear image visibility while protecting typography */}
+          <div className="absolute inset-0 bg-gradient-to-r from-white/95 via-white/85 via-45% to-white/35 lg:to-transparent" />
+          <div className="absolute bottom-0 inset-x-0 h-24 bg-gradient-to-t from-background via-background/60 to-transparent" />
+          <div className="absolute top-0 inset-x-0 h-20 bg-gradient-to-b from-white/80 to-transparent" />
         </div>
       )}
 

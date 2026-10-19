@@ -511,19 +511,49 @@ export function PageEditor({ pageKey, initialData }: PageEditorProps) {
                         />
                       </div>
 
-                      <div>
-                        <span className="block text-xs font-bold text-slate-700 mb-1">
-                          Main Banner Headline *
-                        </span>
-                        <input
-                          type="text"
-                          required
-                          value={String(secData.headline || "")}
-                          onChange={(e) =>
-                            updateSectionData(idx, "headline", e.target.value)
-                          }
-                          className="w-full px-3 py-2 rounded-xl border border-silver-400/30 text-xs text-ink-900 focus:outline-none focus:ring-2 focus:ring-royal-600/30 bg-white font-semibold"
-                        />
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                          <span className="block text-xs font-bold text-slate-700 mb-1">
+                            Main Banner Headline *
+                          </span>
+                          <input
+                            type="text"
+                            required
+                            value={String(secData.headline || "")}
+                            onChange={(e) =>
+                              updateSectionData(idx, "headline", e.target.value)
+                            }
+                            placeholder="e.g. PROTECT ASSET VALUE,"
+                            className="w-full px-3 py-2 rounded-xl border border-silver-400/30 text-xs text-ink-900 focus:outline-none focus:ring-2 focus:ring-royal-600/30 bg-white font-semibold"
+                          />
+                          <p className="text-[11px] text-slate-500 mt-1">
+                            Dark headline text in the hero banner.
+                          </p>
+                        </div>
+
+                        <div>
+                          <span className="block text-xs font-bold text-royal-700 mb-1 flex items-center gap-1.5">
+                            <span className="w-2 h-2 rounded-full bg-royal-600 inline-block" />
+                            Highlighted Blue Text (Accent Line)
+                          </span>
+                          <input
+                            type="text"
+                            value={String(secData.highlightedText || "")}
+                            onChange={(e) =>
+                              updateSectionData(
+                                idx,
+                                "highlightedText",
+                                e.target.value,
+                              )
+                            }
+                            placeholder="e.g. AND INCREASE VALUE"
+                            className="w-full px-3 py-2 rounded-xl border border-royal-300 text-xs text-royal-700 font-bold focus:outline-none focus:ring-2 focus:ring-royal-600/30 bg-royal-50/40"
+                          />
+                          <p className="text-[11px] text-slate-500 mt-1">
+                            Blue highlighted text rendered next to the main
+                            headline.
+                          </p>
+                        </div>
                       </div>
 
                       <div>

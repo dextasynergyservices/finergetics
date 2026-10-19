@@ -9,14 +9,14 @@ export const heroSectionSchema = z.object({
   data: z.object({
     eyebrow: z.string().optional(),
     headline: z.string().min(1, "Headline is required"),
-    highlightedText: z.string().optional(),
+    highlightedText: z.string().nullable().optional(),
     subheadline: z.string().min(1, "Subheadline is required"),
     ctaPrimaryText: z.string().default("Book an Advisory Discussion"),
     ctaPrimaryLink: z.string().default("/book-a-call"),
     ctaSecondaryText: z.string().optional(),
     ctaSecondaryLink: z.string().optional(),
-    image: imageRefSchema.optional(),
-    backgroundImage: imageRefSchema.optional(),
+    image: imageRefSchema.nullable().optional(),
+    backgroundImage: imageRefSchema.nullable().optional(),
   }),
 });
 export type HeroSection = z.infer<typeof heroSectionSchema>;
@@ -29,7 +29,7 @@ export const marqueeSectionSchema = z.object({
   data: z.object({
     label: z.string().optional(),
     items: z.array(z.string()).min(1, "At least one marquee item is required"),
-    speed: z.number().int().positive().default(35),
+    speed: z.coerce.number().int().positive().default(35),
   }),
 });
 export type MarqueeSection = z.infer<typeof marqueeSectionSchema>;
