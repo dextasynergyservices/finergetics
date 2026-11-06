@@ -10,6 +10,7 @@ import { Pagination } from "@/components/admin/pagination";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { TableActionMenu } from "@/components/admin/table-actions";
 import { getCloudinaryUrl } from "@/lib/cloudinary";
+import { useServerSyncedState } from "@/lib/hooks/use-server-synced-state";
 import type { ImageRef } from "@/lib/schemas/common";
 import {
   deleteTeamMemberAction,
@@ -32,7 +33,8 @@ interface TeamListProps {
 }
 
 export function TeamList({ initialMembers }: TeamListProps) {
-  const [members, setMembers] = useState<TeamMemberItem[]>(initialMembers);
+  const [members, setMembers] =
+    useServerSyncedState<TeamMemberItem[]>(initialMembers);
   const [deleteTarget, setDeleteTarget] = useState<TeamMemberItem | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 

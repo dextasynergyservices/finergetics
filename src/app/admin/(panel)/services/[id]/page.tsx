@@ -2,6 +2,7 @@ export const instant = false;
 
 import { notFound } from "next/navigation";
 import { ServiceForm } from "@/components/admin/modules/service-form";
+import { contentKey } from "@/lib/content-key";
 import type { ServiceCardTone, ServiceInput } from "@/lib/schemas/service";
 import { requireRole } from "@/server/auth/guard";
 import { getAdminServiceById } from "@/server/queries/admin";
@@ -35,5 +36,11 @@ export default async function AdminEditServicePage(props: PageProps) {
     status: service.status,
   };
 
-  return <ServiceForm initialData={initialData} isEdit />;
+  return (
+    <ServiceForm
+      key={contentKey(initialData)}
+      initialData={initialData}
+      isEdit
+    />
+  );
 }

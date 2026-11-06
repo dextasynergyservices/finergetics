@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { DataTable } from "@/components/admin/data-table";
 import { TableActionMenu } from "@/components/admin/table-actions";
+import { useServerSyncedState } from "@/lib/hooks/use-server-synced-state";
 import type { LeadStatus } from "@/lib/schemas/common";
 import {
   deleteLeadAction,
@@ -41,7 +42,7 @@ interface LeadsInboxProps {
 }
 
 export function LeadsInbox({ initialLeads }: LeadsInboxProps) {
-  const [leads, setLeads] = useState<LeadItem[]>(initialLeads);
+  const [leads, setLeads] = useServerSyncedState<LeadItem[]>(initialLeads);
   const [deleteTarget, setDeleteTarget] = useState<LeadItem | null>(null);
   const [activeNoteLead, setActiveNoteLead] = useState<LeadItem | null>(null);
   const [noteText, setNoteText] = useState("");

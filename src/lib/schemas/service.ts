@@ -1,5 +1,11 @@
 import { z } from "zod";
-import { imageRefSchema, publishStatusSchema, slugSchema } from "./common";
+import {
+  imageRefSchema,
+  optionalText,
+  publishStatusSchema,
+  richTextDocSchema,
+  slugSchema,
+} from "./common";
 
 export const serviceCardToneSchema = z.enum([
   "royal",
@@ -15,18 +21,18 @@ export const serviceInputSchema = z.object({
     .string()
     .min(3, "Title must be at least 3 characters")
     .max(160, "Title cannot exceed 160 characters"),
-  tagline: z.string().max(160).optional(),
+  tagline: optionalText(160),
   summary: z
     .string()
     .min(10, "Summary must be at least 10 characters")
     .max(500, "Summary cannot exceed 500 characters"),
-  body: z.record(z.string(), z.unknown()).optional(), // Tiptap JSON
-  icon: z.string().optional(),
+  body: richTextDocSchema, // Tiptap JSON
+  icon: optionalText(),
   cardTone: serviceCardToneSchema.default("royal"),
   image: imageRefSchema.nullable().optional(),
   sortOrder: z.coerce.number().int().default(0),
-  seoTitle: z.string().max(160).optional(),
-  seoDescription: z.string().max(320).optional(),
+  seoTitle: optionalText(160),
+  seoDescription: optionalText(320),
   status: publishStatusSchema.default("draft"),
 });
 

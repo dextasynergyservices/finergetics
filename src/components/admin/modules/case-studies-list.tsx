@@ -8,6 +8,7 @@ import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { Pagination } from "@/components/admin/pagination";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { TableActionMenu } from "@/components/admin/table-actions";
+import { useServerSyncedState } from "@/lib/hooks/use-server-synced-state";
 import { deleteCaseStudyAction } from "@/server/actions/case-studies";
 
 export interface CaseStudyListItem {
@@ -25,7 +26,8 @@ interface CaseStudiesListProps {
 }
 
 export function CaseStudiesList({ initialCaseStudies }: CaseStudiesListProps) {
-  const [items, setItems] = useState<CaseStudyListItem[]>(initialCaseStudies);
+  const [items, setItems] =
+    useServerSyncedState<CaseStudyListItem[]>(initialCaseStudies);
   const [deleteTarget, setDeleteTarget] = useState<CaseStudyListItem | null>(
     null,
   );

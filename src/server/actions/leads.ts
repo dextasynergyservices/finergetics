@@ -2,12 +2,14 @@
 
 import { createHash } from "node:crypto";
 import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { headers } from "next/headers";
 import { env } from "@/env";
 import {
   MIN_FORM_DWELL_TIME_MS,
   sanitizeSecurityInput,
 } from "@/lib/constants/security";
+import { formatZodIssues } from "@/lib/schemas/common";
 import {
   leadUpdateSchema,
   type PublicInquiryInput,
@@ -65,6 +67,12 @@ export async function verifyRecaptcha(
         );
         return { success: true, score: 85 };
       }
+      // e.g. "invalid-input-secret" (wrong RECAPTCHA_SECRET_KEY),
+      // "invalid-input-response" (bad/placeholder token), "timeout-or-duplicate".
+      console.error("[reCAPTCHA] Verification rejected by Google:", {
+        errorCodes: data["error-codes"],
+        hostname: data.hostname,
+      });
       return { success: false };
     }
 
@@ -83,6 +91,7 @@ export async function verifyRecaptcha(
     const rawScore = typeof data.score === "number" ? data.score : 0.9;
     // Score threshold check >= 0.5 per §4.3
     if (rawScore < 0.5) {
+      console.warn("[reCAPTCHA] Score below threshold:", rawScore);
       return { success: false, score: Math.round(rawScore * 100) };
     }
 
@@ -151,7 +160,7 @@ export async function submitLeadInquiryAction(rawInput: unknown) {
       success: false,
       error:
         "Please check your submission: " +
-        validated.error.issues.map((i) => i.message).join(", "),
+        formatZodIssues(validated.error.issues),
     };
   }
 
@@ -249,9 +258,7 @@ export async function updateLeadStatusAction(rawInput: unknown) {
   if (!validated.success) {
     return {
       success: false,
-      error:
-        "Validation failed: " +
-        validated.error.issues.map((i) => i.message).join(", "),
+      error: `Validation failed: ${formatZodIssues(validated.error.issues)}`,
     };
   }
 
@@ -273,6 +280,8 @@ export async function updateLeadStatusAction(rawInput: unknown) {
     summary: { status: validated.data.status },
   });
 
+  revalidatePath("/admin", "layout");
+
   return { success: true, lead };
 }
 
@@ -290,6 +299,8 @@ export async function deleteLeadAction(id: string) {
       summary: { email: deleted.email },
     });
   }
+
+  revalidatePath("/admin", "layout");
 
   return { success: true };
 }

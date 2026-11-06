@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidateTag, updateTag } from "next/cache";
+import { revalidatePath, revalidateTag, updateTag } from "next/cache";
 
 export type ContentTag =
   | "services"
@@ -24,6 +24,11 @@ export async function revalidateContent(tags: ContentTag | ContentTag[]) {
       revalidateTag(tag, { expire: 0 });
     }
   }
+
+  // Admin pages read the DB directly (no cache tags), but the client router
+  // and Cache Components keep previously visited admin routes alive. Purge
+  // them so lists/editors show the saved data without a manual refresh.
+  revalidatePath("/admin", "layout");
 
   return { success: true, revalidatedTags: tagList, timestamp: Date.now() };
 }

@@ -2,8 +2,10 @@
 
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { formatZodIssues } from "@/lib/schemas/common";
 import { recordAuditLog } from "@/server/audit/audit";
 import { requireRole } from "@/server/auth/guard";
+import { cloudinary } from "@/server/cloudinary";
 import { db } from "@/server/db/client";
 import { mediaAssets } from "@/server/db/schema";
 import { revalidateContent } from "./revalidate";
@@ -25,9 +27,7 @@ export async function registerMediaAssetAction(rawInput: unknown) {
   if (!validated.success) {
     return {
       success: false,
-      error:
-        "Validation failed: " +
-        validated.error.issues.map((i) => i.message).join(", "),
+      error: `Validation failed: ${formatZodIssues(validated.error.issues)}`,
     };
   }
 
@@ -73,23 +73,50 @@ export async function registerMediaAssetAction(rawInput: unknown) {
   return { success: true, asset };
 }
 
-export async function deleteMediaAssetAction(id: string) {
+export async function deleteMediaAssetAction(
+  id: string,
+): Promise<{ success: true } | { success: false; error: string }> {
   const { user } = await requireRole("editor");
+
+  if (!z.string().uuid().safeParse(id).success) {
+    return { success: false, error: "Invalid media ID" };
+  }
 
   const [deleted] = await db
     .delete(mediaAssets)
     .where(eq(mediaAssets.id, id))
     .returning();
 
-  if (deleted) {
-    await recordAuditLog({
-      userId: user.id,
-      action: "media.delete",
-      entity: "media_assets",
-      entityId: id,
-      summary: { publicId: deleted.publicId },
-    });
+  if (!deleted) {
+    return {
+      success: false,
+      error: "This photo no longer exists. Refresh the page.",
+    };
   }
+
+  // Remove the file from Cloudinary too, so deleted photos don't linger on the CDN.
+  // Best-effort: the DB record is already gone, so a CDN hiccup must not block the admin.
+  try {
+    await cloudinary.uploader.destroy(deleted.publicId, { invalidate: true });
+  } catch (err) {
+    console.error("[Media] Cloudinary destroy failed:", deleted.publicId, err);
+  }
+
+  await recordAuditLog({
+    userId: user.id,
+    action: "media.delete",
+    entity: "media_assets",
+    entityId: id,
+    summary: { publicId: deleted.publicId },
+  });
+
+  await revalidateContent([
+    "pages",
+    "services",
+    "team",
+    "posts",
+    "case_studies",
+  ]);
 
   return { success: true };
 }

@@ -12,8 +12,16 @@ import {
   ShieldCheck,
   User,
 } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+  GoogleReCaptchaProvider,
+  useGoogleReCaptcha,
+} from "react-google-recaptcha-v3";
+import { toast } from "sonner";
 import { submitLeadInquiryAction } from "@/server/actions/leads";
+
+const RECAPTCHA_SITE_KEY = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY ?? "";
+const RECAPTCHA_ACTION = "book_call";
 
 const ADVISORY_AREAS = [
   "Financial Control & Joint Venture Advisory",
@@ -32,7 +40,25 @@ const TIMING_OPTIONS = [
   "Flexible Scheduling",
 ] as const;
 
+/**
+ * Public "Book an advisory discussion" form. Wrapped in the reCAPTCHA v3
+ * provider so Google's script is actually loaded and a real token is sent to
+ * the server (without it, production verification always fails).
+ */
 export function ConsultationForm() {
+  return (
+    <GoogleReCaptchaProvider
+      reCaptchaKey={RECAPTCHA_SITE_KEY}
+      scriptProps={{ async: true, defer: true, appendTo: "head" }}
+    >
+      <ConsultationFormInner />
+    </GoogleReCaptchaProvider>
+  );
+}
+
+function ConsultationFormInner() {
+  const { executeRecaptcha } = useGoogleReCaptcha();
+  const errorRef = useRef<HTMLDivElement>(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -53,52 +79,47 @@ export function ConsultationForm() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
+  const showError = (msg: string) => {
+    setErrorMessage(msg);
+    toast.error(msg);
+    // Make sure the inline message is on screen too (long form, small screens).
+    requestAnimationFrame(() =>
+      errorRef.current?.scrollIntoView({ behavior: "smooth", block: "center" }),
+    );
+  };
+
+  const getRecaptchaToken = async (): Promise<string | null> => {
+    if (executeRecaptcha && RECAPTCHA_SITE_KEY) {
+      try {
+        return await executeRecaptcha(RECAPTCHA_ACTION);
+      } catch (err) {
+        console.warn("[reCAPTCHA] Token generation failed:", err);
+      }
+    }
+    // Local development without a reachable reCAPTCHA: the server accepts
+    // this placeholder only when NODE_ENV is development/test.
+    if (process.env.NODE_ENV !== "production") return "dev-bypass";
+    return null;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
 
     if (!name.trim() || !email.trim()) {
-      setErrorMessage("Please provide your name and work email address.");
+      showError("Please provide your name and work email address.");
       return;
     }
 
     setIsSubmitting(true);
 
     try {
-      // In development or when grecaptcha is not active on local hostnames,
-      // provide test-token which is securely validated on the server action.
-      let recaptchaToken = "dev-bypass";
-
-      if (
-        typeof window !== "undefined" &&
-        (
-          window as unknown as {
-            grecaptcha?: {
-              execute: (
-                key: string,
-                opts: { action: string },
-              ) => Promise<string>;
-            };
-          }
-        ).grecaptcha
-      ) {
-        try {
-          const siteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
-          if (siteKey) {
-            recaptchaToken = await (
-              window as unknown as {
-                grecaptcha: {
-                  execute: (
-                    key: string,
-                    opts: { action: string },
-                  ) => Promise<string>;
-                };
-              }
-            ).grecaptcha.execute(siteKey, { action: "book_call" });
-          }
-        } catch (tokenErr) {
-          console.warn("[reCAPTCHA Client] Fallback used:", tokenErr);
-        }
+      const recaptchaToken = await getRecaptchaToken();
+      if (!recaptchaToken) {
+        showError(
+          "Our security check hasn't finished loading. Please wait a few seconds and try again. If you use an ad or script blocker, allow google.com/recaptcha for this site.",
+        );
+        return;
       }
 
       const res = await submitLeadInquiryAction({
@@ -116,17 +137,17 @@ export function ConsultationForm() {
       });
 
       if (!res.success) {
-        setErrorMessage(
+        showError(
           res.error || "Unable to submit your request. Please try again.",
         );
-        setIsSubmitting(false);
         return;
       }
 
+      toast.success("Consultation request received. Check your inbox.");
       setIsSuccess(true);
     } catch (err) {
       console.error("[Consultation Form] Error:", err);
-      setErrorMessage(
+      showError(
         "A connection error occurred. Please check your network or email info@finergetics.com directly.",
       );
     } finally {
@@ -219,12 +240,6 @@ export function ConsultationForm() {
           regime questions directly with Finergetics advisory partners.
         </p>
       </div>
-
-      {errorMessage && (
-        <div className="p-4 rounded-2xl bg-red-50/80 border border-red-200 text-red-700 text-xs leading-relaxed animate-in fade-in">
-          {errorMessage}
-        </div>
-      )}
 
       {/* Grid: Name & Email */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -376,6 +391,17 @@ export function ConsultationForm() {
           className="w-full p-3.5 rounded-xl border border-silver-400/40 focus:border-royal-600 focus:ring-2 focus:ring-royal-600/10 text-xs sm:text-sm text-navy-950 outline-none transition-all resize-y"
         />
       </div>
+
+      {errorMessage && (
+        <div
+          ref={errorRef}
+          role="alert"
+          aria-live="assertive"
+          className="p-4 rounded-2xl bg-red-50/80 border border-red-200 text-red-700 text-xs leading-relaxed animate-in fade-in"
+        >
+          {errorMessage}
+        </div>
+      )}
 
       {/* Guarantee & Submit */}
       <div className="pt-2 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-silver-400/20">

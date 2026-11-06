@@ -15,6 +15,7 @@ import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { Pagination } from "@/components/admin/pagination";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { TableActionMenu } from "@/components/admin/table-actions";
+import { useServerSyncedState } from "@/lib/hooks/use-server-synced-state";
 import {
   deleteServiceAction,
   reorderServicesAction,
@@ -35,7 +36,8 @@ interface ServicesListProps {
 }
 
 export function ServicesList({ initialServices }: ServicesListProps) {
-  const [services, setServices] = useState<ServiceListItem[]>(initialServices);
+  const [services, setServices] =
+    useServerSyncedState<ServiceListItem[]>(initialServices);
   const [deleteTarget, setDeleteTarget] = useState<ServiceListItem | null>(
     null,
   );

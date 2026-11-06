@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { authClient } from "@/lib/auth-client";
 import { cn } from "@/lib/utils";
@@ -132,15 +132,19 @@ export function AdminMobileNav({
   role: string;
 }) {
   const pathname = usePathname();
-  const router = useRouter();
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [loggingOut, setLoggingOut] = useState(false);
 
   const handleSignOut = async () => {
     setLoggingOut(true);
-    await authClient.signOut();
-    router.push("/admin/login");
-    router.refresh();
+    try {
+      await authClient.signOut();
+    } finally {
+      // Full reload (not router.push): Cache Components keep visited admin
+      // pages alive in memory; a hard navigation guarantees nothing from this
+      // session survives for the next person on this browser.
+      window.location.href = "/admin/login";
+    }
   };
 
   const visibleItems = NAV_ITEMS.filter(

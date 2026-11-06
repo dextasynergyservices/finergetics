@@ -1,10 +1,12 @@
 "use server";
 
 import { eq } from "drizzle-orm";
+import { formatZodIssues } from "@/lib/schemas/common";
 import { teamMemberInputSchema } from "@/lib/schemas/team";
 import { recordAuditLog } from "@/server/audit/audit";
 import { requireRole } from "@/server/auth/guard";
 import { db } from "@/server/db/client";
+import { describeDbError } from "@/server/db/errors";
 import { teamMembers } from "@/server/db/schema";
 import { revalidateContent } from "./revalidate";
 
@@ -15,27 +17,30 @@ export async function createTeamMemberAction(rawInput: unknown) {
   if (!validated.success) {
     return {
       success: false,
-      error:
-        "Validation failed: " +
-        validated.error.issues.map((i) => i.message).join(", "),
+      error: `Validation failed: ${formatZodIssues(validated.error.issues)}`,
     };
   }
 
-  const [member] = await db
-    .insert(teamMembers)
-    .values({
-      slug: validated.data.slug,
-      name: validated.data.name,
-      role: validated.data.role,
-      credentials: validated.data.credentials,
-      highlights: validated.data.highlights,
-      bio: validated.data.bio,
-      photo: validated.data.photo,
-      linkedinUrl: validated.data.linkedinUrl || null,
-      sortOrder: validated.data.sortOrder,
-      status: validated.data.status,
-    })
-    .returning();
+  let member: typeof teamMembers.$inferSelect | undefined;
+  try {
+    [member] = await db
+      .insert(teamMembers)
+      .values({
+        slug: validated.data.slug,
+        name: validated.data.name,
+        role: validated.data.role,
+        credentials: validated.data.credentials,
+        highlights: validated.data.highlights,
+        bio: validated.data.bio,
+        photo: validated.data.photo,
+        linkedinUrl: validated.data.linkedinUrl || null,
+        sortOrder: validated.data.sortOrder,
+        status: validated.data.status,
+      })
+      .returning();
+  } catch (err) {
+    return { success: false, error: describeDbError(err, "team member") };
+  }
 
   await recordAuditLog({
     userId: user.id,
@@ -57,29 +62,32 @@ export async function updateTeamMemberAction(id: string, rawInput: unknown) {
   if (!validated.success) {
     return {
       success: false,
-      error:
-        "Validation failed: " +
-        validated.error.issues.map((i) => i.message).join(", "),
+      error: `Validation failed: ${formatZodIssues(validated.error.issues)}`,
     };
   }
 
-  const [member] = await db
-    .update(teamMembers)
-    .set({
-      slug: validated.data.slug,
-      name: validated.data.name,
-      role: validated.data.role,
-      credentials: validated.data.credentials,
-      highlights: validated.data.highlights,
-      bio: validated.data.bio,
-      photo: validated.data.photo,
-      linkedinUrl: validated.data.linkedinUrl || null,
-      sortOrder: validated.data.sortOrder,
-      status: validated.data.status,
-      updatedAt: new Date(),
-    })
-    .where(eq(teamMembers.id, id))
-    .returning();
+  let member: typeof teamMembers.$inferSelect | undefined;
+  try {
+    [member] = await db
+      .update(teamMembers)
+      .set({
+        slug: validated.data.slug,
+        name: validated.data.name,
+        role: validated.data.role,
+        credentials: validated.data.credentials,
+        highlights: validated.data.highlights,
+        bio: validated.data.bio,
+        photo: validated.data.photo,
+        linkedinUrl: validated.data.linkedinUrl || null,
+        sortOrder: validated.data.sortOrder,
+        status: validated.data.status,
+        updatedAt: new Date(),
+      })
+      .where(eq(teamMembers.id, id))
+      .returning();
+  } catch (err) {
+    return { success: false, error: describeDbError(err, "team member") };
+  }
 
   await recordAuditLog({
     userId: user.id,
