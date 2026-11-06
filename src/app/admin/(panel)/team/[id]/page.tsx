@@ -2,6 +2,7 @@ export const instant = false;
 
 import { notFound } from "next/navigation";
 import { TeamForm } from "@/components/admin/modules/team-form";
+import { contentKey } from "@/lib/content-key";
 import type { TeamMemberInput } from "@/lib/schemas/team";
 import { requireRole } from "@/server/auth/guard";
 import { getAdminTeamMemberById } from "@/server/queries/admin";
@@ -33,5 +34,7 @@ export default async function AdminEditTeamMemberPage(props: PageProps) {
     status: member.status,
   };
 
-  return <TeamForm initialData={initialData} isEdit />;
+  return (
+    <TeamForm key={contentKey(initialData)} initialData={initialData} isEdit />
+  );
 }

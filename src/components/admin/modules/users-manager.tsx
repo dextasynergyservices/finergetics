@@ -17,6 +17,8 @@ import { toast } from "sonner";
 import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { Pagination } from "@/components/admin/pagination";
 import { TableActionMenu } from "@/components/admin/table-actions";
+import { useResetOnHide } from "@/lib/hooks/use-reset-on-hide";
+import { useServerSyncedState } from "@/lib/hooks/use-server-synced-state";
 import { cn } from "@/lib/utils";
 import {
   cancelInvitationAction,
@@ -56,12 +58,13 @@ export function UsersManager({
   initialInvitations = [],
   currentUserId,
 }: UsersManagerProps) {
-  const [users, setUsers] = useState<UserItem[]>(initialUsers);
+  const [users, setUsers] = useServerSyncedState<UserItem[]>(initialUsers);
   const [invitations, setInvitations] =
-    useState<InvitationItem[]>(initialInvitations);
+    useServerSyncedState<InvitationItem[]>(initialInvitations);
   const [activeTab, setActiveTab] = useState<"users" | "invites">("users");
 
   const [isInviteOpen, setIsInviteOpen] = useState(false);
+  useResetOnHide(() => setIsInviteOpen(false));
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<UserItem | null>(null);
   const [resetPasswordTarget, setResetPasswordTarget] =

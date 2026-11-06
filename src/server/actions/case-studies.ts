@@ -2,9 +2,11 @@
 
 import { eq } from "drizzle-orm";
 import { caseStudyInputSchema } from "@/lib/schemas/case-study";
+import { formatZodIssues } from "@/lib/schemas/common";
 import { recordAuditLog } from "@/server/audit/audit";
 import { requireRole } from "@/server/auth/guard";
 import { db } from "@/server/db/client";
+import { describeDbError } from "@/server/db/errors";
 import { caseStudies } from "@/server/db/schema";
 import { revalidateContent } from "./revalidate";
 
@@ -15,36 +17,39 @@ export async function createCaseStudyAction(rawInput: unknown) {
   if (!validated.success) {
     return {
       success: false,
-      error:
-        "Validation failed: " +
-        validated.error.issues.map((i) => i.message).join(", "),
+      error: `Validation failed: ${formatZodIssues(validated.error.issues)}`,
     };
   }
 
-  const [cs] = await db
-    .insert(caseStudies)
-    .values({
-      slug: validated.data.slug,
-      title: validated.data.title,
-      clientName: validated.data.clientName,
-      industry: validated.data.industry,
-      serviceId: validated.data.serviceId || null,
-      summary: validated.data.summary,
-      challenge: validated.data.challenge,
-      approach: validated.data.approach,
-      outcome: validated.data.outcome,
-      metrics: validated.data.metrics,
-      cover: validated.data.cover,
-      featured: validated.data.featured,
-      publishedAt:
-        validated.data.status === "published"
-          ? validated.data.publishedAt || new Date()
-          : null,
-      seoTitle: validated.data.seoTitle,
-      seoDescription: validated.data.seoDescription,
-      status: validated.data.status,
-    })
-    .returning();
+  let cs: typeof caseStudies.$inferSelect | undefined;
+  try {
+    [cs] = await db
+      .insert(caseStudies)
+      .values({
+        slug: validated.data.slug,
+        title: validated.data.title,
+        clientName: validated.data.clientName,
+        industry: validated.data.industry,
+        serviceId: validated.data.serviceId || null,
+        summary: validated.data.summary,
+        challenge: validated.data.challenge,
+        approach: validated.data.approach,
+        outcome: validated.data.outcome,
+        metrics: validated.data.metrics,
+        cover: validated.data.cover,
+        featured: validated.data.featured,
+        publishedAt:
+          validated.data.status === "published"
+            ? validated.data.publishedAt || new Date()
+            : null,
+        seoTitle: validated.data.seoTitle,
+        seoDescription: validated.data.seoDescription,
+        status: validated.data.status,
+      })
+      .returning();
+  } catch (err) {
+    return { success: false, error: describeDbError(err, "case study") };
+  }
 
   await recordAuditLog({
     userId: user.id,
@@ -66,38 +71,41 @@ export async function updateCaseStudyAction(id: string, rawInput: unknown) {
   if (!validated.success) {
     return {
       success: false,
-      error:
-        "Validation failed: " +
-        validated.error.issues.map((i) => i.message).join(", "),
+      error: `Validation failed: ${formatZodIssues(validated.error.issues)}`,
     };
   }
 
-  const [cs] = await db
-    .update(caseStudies)
-    .set({
-      slug: validated.data.slug,
-      title: validated.data.title,
-      clientName: validated.data.clientName,
-      industry: validated.data.industry,
-      serviceId: validated.data.serviceId || null,
-      summary: validated.data.summary,
-      challenge: validated.data.challenge,
-      approach: validated.data.approach,
-      outcome: validated.data.outcome,
-      metrics: validated.data.metrics,
-      cover: validated.data.cover,
-      featured: validated.data.featured,
-      publishedAt:
-        validated.data.status === "published"
-          ? validated.data.publishedAt || new Date()
-          : null,
-      seoTitle: validated.data.seoTitle,
-      seoDescription: validated.data.seoDescription,
-      status: validated.data.status,
-      updatedAt: new Date(),
-    })
-    .where(eq(caseStudies.id, id))
-    .returning();
+  let cs: typeof caseStudies.$inferSelect | undefined;
+  try {
+    [cs] = await db
+      .update(caseStudies)
+      .set({
+        slug: validated.data.slug,
+        title: validated.data.title,
+        clientName: validated.data.clientName,
+        industry: validated.data.industry,
+        serviceId: validated.data.serviceId || null,
+        summary: validated.data.summary,
+        challenge: validated.data.challenge,
+        approach: validated.data.approach,
+        outcome: validated.data.outcome,
+        metrics: validated.data.metrics,
+        cover: validated.data.cover,
+        featured: validated.data.featured,
+        publishedAt:
+          validated.data.status === "published"
+            ? validated.data.publishedAt || new Date()
+            : null,
+        seoTitle: validated.data.seoTitle,
+        seoDescription: validated.data.seoDescription,
+        status: validated.data.status,
+        updatedAt: new Date(),
+      })
+      .where(eq(caseStudies.id, id))
+      .returning();
+  } catch (err) {
+    return { success: false, error: describeDbError(err, "case study") };
+  }
 
   await recordAuditLog({
     userId: user.id,

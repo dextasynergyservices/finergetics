@@ -50,7 +50,6 @@ export function ServiceForm({ initialData, isEdit = false }: ServiceFormProps) {
       if (res.success) {
         toast.success(isEdit ? "Service updated!" : "Service created!");
         router.push("/admin/services");
-        router.refresh();
       } else {
         toast.error(res.error || "Failed to save service");
       }

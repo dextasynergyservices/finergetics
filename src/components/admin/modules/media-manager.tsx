@@ -18,6 +18,8 @@ import { Pagination } from "@/components/admin/pagination";
 import { TableActionMenu } from "@/components/admin/table-actions";
 import { uploadImageFromDevice } from "@/lib/client-uploader";
 import { getCloudinaryUrl } from "@/lib/cloudinary";
+import { useResetOnHide } from "@/lib/hooks/use-reset-on-hide";
+import { useServerSyncedState } from "@/lib/hooks/use-server-synced-state";
 import { deleteMediaAssetAction } from "@/server/actions/media";
 
 interface MediaAsset {
@@ -37,11 +39,12 @@ interface MediaManagerProps {
 }
 
 export function MediaManager({ initialAssets }: MediaManagerProps) {
-  const [assets, setAssets] = useState<MediaAsset[]>(initialAssets);
+  const [assets, setAssets] = useServerSyncedState<MediaAsset[]>(initialAssets);
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<MediaAsset | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [previewAsset, setPreviewAsset] = useState<MediaAsset | null>(null);
+  useResetOnHide(() => setPreviewAsset(null));
 
   // Uploading state
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -150,12 +153,13 @@ export function MediaManager({ initialAssets }: MediaManagerProps) {
         if (currentPage > newTotalPages) {
           setCurrentPage(newTotalPages);
         }
-        toast.success("Asset removed from media gallery");
+        if (previewAsset?.id === deleteTarget.id) setPreviewAsset(null);
+        toast.success("Photo deleted");
       } else {
-        toast.error("Failed to delete asset");
+        toast.error(res.error || "Failed to delete photo");
       }
-    } catch {
-      toast.error("Error deleting asset");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Error deleting photo");
     } finally {
       setIsDeleting(false);
       setDeleteTarget(null);
@@ -395,26 +399,38 @@ export function MediaManager({ initialAssets }: MediaManagerProps) {
                       )}
                     </button>
 
-                    <TableActionMenu
-                      items={[
-                        {
-                          label: "Preview Full Resolution",
-                          icon: Eye,
-                          onClick: () => setPreviewAsset(asset),
-                        },
-                        {
-                          label: "Copy Image URL",
-                          icon: Copy,
-                          onClick: () => copyToClipboard(asset),
-                        },
-                        {
-                          label: "Remove Photo",
-                          icon: Trash2,
-                          destructive: true,
-                          onClick: () => setDeleteTarget(asset),
-                        },
-                      ]}
-                    />
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => setDeleteTarget(asset)}
+                        title="Delete photo"
+                        className="inline-flex items-center gap-1 px-2 py-1.5 rounded-lg text-[11px] font-semibold text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        <span>Delete</span>
+                      </button>
+
+                      <TableActionMenu
+                        items={[
+                          {
+                            label: "Preview Full Resolution",
+                            icon: Eye,
+                            onClick: () => setPreviewAsset(asset),
+                          },
+                          {
+                            label: "Copy Image URL",
+                            icon: Copy,
+                            onClick: () => copyToClipboard(asset),
+                          },
+                          {
+                            label: "Remove Photo",
+                            icon: Trash2,
+                            destructive: true,
+                            onClick: () => setDeleteTarget(asset),
+                          },
+                        ]}
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
@@ -490,14 +506,24 @@ export function MediaManager({ initialAssets }: MediaManagerProps) {
                 {new Date(previewAsset.createdAt).toLocaleDateString()}
               </span>
 
-              <button
-                type="button"
-                onClick={() => copyToClipboard(previewAsset)}
-                className="px-4 py-2 rounded-xl bg-royal-600 hover:bg-royal-700 text-white font-bold inline-flex items-center gap-1.5 cursor-pointer shadow-xs"
-              >
-                <Copy className="w-3.5 h-3.5" />
-                <span>Copy Full Image URL</span>
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setDeleteTarget(previewAsset)}
+                  className="px-4 py-2 rounded-xl border border-red-200 text-red-600 hover:bg-red-50 font-bold inline-flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => copyToClipboard(previewAsset)}
+                  className="px-4 py-2 rounded-xl bg-royal-600 hover:bg-royal-700 text-white font-bold inline-flex items-center gap-1.5 cursor-pointer shadow-xs"
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>Copy Full Image URL</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -507,9 +533,9 @@ export function MediaManager({ initialAssets }: MediaManagerProps) {
       <ConfirmDialog
         open={Boolean(deleteTarget)}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
-        title="Remove Photo"
-        description={`Are you sure you want to remove "${deleteTarget?.alt || deleteTarget?.publicId}" from your website media?`}
-        confirmLabel="Remove Photo"
+        title="Delete Photo"
+        description={`Permanently delete "${deleteTarget?.alt || deleteTarget?.publicId}"? Any page, service, post or team profile still using this image will stop showing it.`}
+        confirmLabel="Delete Photo"
         variant="destructive"
         loading={isDeleting}
         onConfirm={handleDelete}

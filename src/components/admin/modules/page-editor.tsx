@@ -20,6 +20,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { ImagePicker } from "@/components/admin/image-picker";
 import { SeoFields } from "@/components/admin/seo-fields";
+import { useServerSyncedState } from "@/lib/hooks/use-server-synced-state";
 import type { ImageRef } from "@/lib/schemas/common";
 import type { PageInput, PageKey } from "@/lib/schemas/page";
 import type { PageSection } from "@/lib/schemas/sections";
@@ -95,7 +96,7 @@ export function PageEditor({ pageKey, initialData }: PageEditorProps) {
   const [expandedSectionId, setExpandedSectionId] = useState<string | null>(
     null,
   );
-  const [form, setForm] = useState<PageInput>(initialData);
+  const [form, setForm] = useServerSyncedState<PageInput>(initialData);
 
   const moveSection = (index: number, direction: "up" | "down") => {
     const target = direction === "up" ? index - 1 : index + 1;

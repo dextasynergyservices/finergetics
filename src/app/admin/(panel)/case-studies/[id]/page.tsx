@@ -2,6 +2,7 @@ export const instant = false;
 
 import { notFound } from "next/navigation";
 import { CaseStudyForm } from "@/components/admin/modules/case-study-form";
+import { contentKey } from "@/lib/content-key";
 import type { CaseStudyInput, MetricItem } from "@/lib/schemas/case-study";
 import { requireRole } from "@/server/auth/guard";
 import {
@@ -51,6 +52,7 @@ export default async function AdminEditCaseStudyPage(props: PageProps) {
 
   return (
     <CaseStudyForm
+      key={contentKey(initialData)}
       initialData={initialData}
       availableServices={availableServices}
       isEdit

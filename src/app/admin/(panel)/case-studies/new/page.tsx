@@ -1,5 +1,6 @@
 export const instant = false;
 
+import { FreshOnNavigate } from "@/components/admin/fresh-on-navigate";
 import { CaseStudyForm } from "@/components/admin/modules/case-study-form";
 import { requireRole } from "@/server/auth/guard";
 import { getAdminServices } from "@/server/queries/admin";
@@ -13,5 +14,9 @@ export default async function AdminNewCaseStudyPage() {
     title: s.title,
   }));
 
-  return <CaseStudyForm availableServices={availableServices} />;
+  return (
+    <FreshOnNavigate>
+      <CaseStudyForm availableServices={availableServices} />
+    </FreshOnNavigate>
+  );
 }

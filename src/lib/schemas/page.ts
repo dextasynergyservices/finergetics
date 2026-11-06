@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { imageRefSchema, publishStatusSchema } from "./common";
+import { imageRefSchema, optionalText, publishStatusSchema } from "./common";
 import { pageSectionsArraySchema } from "./sections";
 
 export const pageKeySchema = z.enum([
@@ -17,8 +17,8 @@ export type PageKey = z.infer<typeof pageKeySchema>;
 export const pageInputSchema = z.object({
   key: pageKeySchema,
   title: z.string().min(2, "Page title is required").max(120),
-  seoTitle: z.string().max(160).optional(),
-  seoDescription: z.string().max(320).optional(),
+  seoTitle: optionalText(160),
+  seoDescription: optionalText(320),
   ogImage: imageRefSchema.nullable().optional(),
   sections: pageSectionsArraySchema.default([]),
   status: publishStatusSchema.default("published"),

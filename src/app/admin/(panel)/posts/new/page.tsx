@@ -1,5 +1,6 @@
 export const instant = false;
 
+import { FreshOnNavigate } from "@/components/admin/fresh-on-navigate";
 import { PostForm } from "@/components/admin/modules/post-form";
 import { requireRole } from "@/server/auth/guard";
 import {
@@ -20,5 +21,9 @@ export default async function AdminNewPostPage() {
     name: `${t.name} (${t.role})`,
   }));
 
-  return <PostForm categories={categoryOptions} authors={authorOptions} />;
+  return (
+    <FreshOnNavigate>
+      <PostForm categories={categoryOptions} authors={authorOptions} />
+    </FreshOnNavigate>
+  );
 }

@@ -86,7 +86,6 @@ export function TeamForm({ initialData, isEdit = false }: TeamFormProps) {
       if (res.success) {
         toast.success(isEdit ? "Team member updated!" : "Team member created!");
         router.push("/admin/team");
-        router.refresh();
       } else {
         toast.error(res.error || "Failed to save team member");
       }

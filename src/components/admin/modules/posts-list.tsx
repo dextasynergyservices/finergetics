@@ -8,6 +8,8 @@ import { ConfirmDialog } from "@/components/admin/confirm-dialog";
 import { Pagination } from "@/components/admin/pagination";
 import { StatusBadge } from "@/components/admin/status-badge";
 import { TableActionMenu } from "@/components/admin/table-actions";
+import { useResetOnHide } from "@/lib/hooks/use-reset-on-hide";
+import { useServerSyncedState } from "@/lib/hooks/use-server-synced-state";
 import {
   createPostCategoryAction,
   deletePostAction,
@@ -37,9 +39,9 @@ interface PostsListProps {
 }
 
 export function PostsList({ initialPosts, initialCategories }: PostsListProps) {
-  const [posts, setPosts] = useState<PostListItem[]>(initialPosts);
+  const [posts, setPosts] = useServerSyncedState<PostListItem[]>(initialPosts);
   const [categories, setCategories] =
-    useState<CategoryItem[]>(initialCategories);
+    useServerSyncedState<CategoryItem[]>(initialCategories);
   const [activeTab, setActiveTab] = useState<"posts" | "categories">("posts");
   const [deleteTarget, setDeleteTarget] = useState<PostListItem | null>(null);
   const [deleteCategoryTarget, setDeleteCategoryTarget] =
@@ -48,6 +50,7 @@ export function PostsList({ initialPosts, initialCategories }: PostsListProps) {
 
   // New category modal state
   const [isNewCategoryOpen, setIsNewCategoryOpen] = useState(false);
+  useResetOnHide(() => setIsNewCategoryOpen(false));
   const [newCatName, setNewCatName] = useState("");
   const [isSubmittingCat, setIsSubmittingCat] = useState(false);
 

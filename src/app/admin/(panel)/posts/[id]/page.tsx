@@ -2,6 +2,7 @@ export const instant = false;
 
 import { notFound } from "next/navigation";
 import { PostForm } from "@/components/admin/modules/post-form";
+import { contentKey } from "@/lib/content-key";
 import type { PostInput } from "@/lib/schemas/post";
 import { requireRole } from "@/server/auth/guard";
 import {
@@ -51,6 +52,7 @@ export default async function AdminEditPostPage(props: PageProps) {
 
   return (
     <PostForm
+      key={contentKey(initialData)}
       initialData={initialData}
       categories={categoryOptions}
       authors={authorOptions}

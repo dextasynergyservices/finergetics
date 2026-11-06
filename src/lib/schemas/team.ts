@@ -1,5 +1,11 @@
 import { z } from "zod";
-import { imageRefSchema, publishStatusSchema, slugSchema } from "./common";
+import {
+  imageRefSchema,
+  optionalText,
+  publishStatusSchema,
+  richTextDocSchema,
+  slugSchema,
+} from "./common";
 
 export const teamMemberInputSchema = z.object({
   slug: slugSchema,
@@ -11,9 +17,9 @@ export const teamMemberInputSchema = z.object({
     .string()
     .min(2, "Role is required")
     .max(100, "Role cannot exceed 100 characters"),
-  credentials: z.string().max(100).optional(),
+  credentials: optionalText(100),
   highlights: z.array(z.string()).default([]),
-  bio: z.record(z.string(), z.unknown()).optional(), // Tiptap JSON
+  bio: richTextDocSchema, // Tiptap JSON
   photo: imageRefSchema.nullable().optional(),
   linkedinUrl: z
     .string()
