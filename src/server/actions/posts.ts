@@ -1,10 +1,12 @@
 "use server";
 
 import { eq } from "drizzle-orm";
+import { formatZodIssues } from "@/lib/schemas/common";
 import { postCategoryInputSchema, postInputSchema } from "@/lib/schemas/post";
 import { recordAuditLog } from "@/server/audit/audit";
 import { requireRole } from "@/server/auth/guard";
 import { db } from "@/server/db/client";
+import { describeDbError } from "@/server/db/errors";
 import { postCategories, posts } from "@/server/db/schema";
 import { revalidateContent } from "./revalidate";
 
@@ -15,32 +17,35 @@ export async function createPostAction(rawInput: unknown) {
   if (!validated.success) {
     return {
       success: false,
-      error:
-        "Validation failed: " +
-        validated.error.issues.map((i) => i.message).join(", "),
+      error: `Validation failed: ${formatZodIssues(validated.error.issues)}`,
     };
   }
 
-  const [post] = await db
-    .insert(posts)
-    .values({
-      slug: validated.data.slug,
-      title: validated.data.title,
-      excerpt: validated.data.excerpt,
-      body: validated.data.body,
-      cover: validated.data.cover,
-      categoryId: validated.data.categoryId || null,
-      authorId: validated.data.authorId || null,
-      readingMinutes: validated.data.readingMinutes,
-      publishedAt:
-        validated.data.status === "published"
-          ? validated.data.publishedAt || new Date()
-          : null,
-      seoTitle: validated.data.seoTitle,
-      seoDescription: validated.data.seoDescription,
-      status: validated.data.status,
-    })
-    .returning();
+  let post: typeof posts.$inferSelect | undefined;
+  try {
+    [post] = await db
+      .insert(posts)
+      .values({
+        slug: validated.data.slug,
+        title: validated.data.title,
+        excerpt: validated.data.excerpt,
+        body: validated.data.body,
+        cover: validated.data.cover,
+        categoryId: validated.data.categoryId || null,
+        authorId: validated.data.authorId || null,
+        readingMinutes: validated.data.readingMinutes,
+        publishedAt:
+          validated.data.status === "published"
+            ? validated.data.publishedAt || new Date()
+            : null,
+        seoTitle: validated.data.seoTitle,
+        seoDescription: validated.data.seoDescription,
+        status: validated.data.status,
+      })
+      .returning();
+  } catch (err) {
+    return { success: false, error: describeDbError(err, "post") };
+  }
 
   await recordAuditLog({
     userId: user.id,
@@ -62,34 +67,37 @@ export async function updatePostAction(id: string, rawInput: unknown) {
   if (!validated.success) {
     return {
       success: false,
-      error:
-        "Validation failed: " +
-        validated.error.issues.map((i) => i.message).join(", "),
+      error: `Validation failed: ${formatZodIssues(validated.error.issues)}`,
     };
   }
 
-  const [post] = await db
-    .update(posts)
-    .set({
-      slug: validated.data.slug,
-      title: validated.data.title,
-      excerpt: validated.data.excerpt,
-      body: validated.data.body,
-      cover: validated.data.cover,
-      categoryId: validated.data.categoryId || null,
-      authorId: validated.data.authorId || null,
-      readingMinutes: validated.data.readingMinutes,
-      publishedAt:
-        validated.data.status === "published"
-          ? validated.data.publishedAt || new Date()
-          : null,
-      seoTitle: validated.data.seoTitle,
-      seoDescription: validated.data.seoDescription,
-      status: validated.data.status,
-      updatedAt: new Date(),
-    })
-    .where(eq(posts.id, id))
-    .returning();
+  let post: typeof posts.$inferSelect | undefined;
+  try {
+    [post] = await db
+      .update(posts)
+      .set({
+        slug: validated.data.slug,
+        title: validated.data.title,
+        excerpt: validated.data.excerpt,
+        body: validated.data.body,
+        cover: validated.data.cover,
+        categoryId: validated.data.categoryId || null,
+        authorId: validated.data.authorId || null,
+        readingMinutes: validated.data.readingMinutes,
+        publishedAt:
+          validated.data.status === "published"
+            ? validated.data.publishedAt || new Date()
+            : null,
+        seoTitle: validated.data.seoTitle,
+        seoDescription: validated.data.seoDescription,
+        status: validated.data.status,
+        updatedAt: new Date(),
+      })
+      .where(eq(posts.id, id))
+      .returning();
+  } catch (err) {
+    return { success: false, error: describeDbError(err, "post") };
+  }
 
   await recordAuditLog({
     userId: user.id,
@@ -131,19 +139,22 @@ export async function createPostCategoryAction(rawInput: unknown) {
   if (!validated.success) {
     return {
       success: false,
-      error:
-        "Validation failed: " +
-        validated.error.issues.map((i) => i.message).join(", "),
+      error: `Validation failed: ${formatZodIssues(validated.error.issues)}`,
     };
   }
 
-  const [category] = await db
-    .insert(postCategories)
-    .values({
-      slug: validated.data.slug,
-      name: validated.data.name,
-    })
-    .returning();
+  let category: typeof postCategories.$inferSelect | undefined;
+  try {
+    [category] = await db
+      .insert(postCategories)
+      .values({
+        slug: validated.data.slug,
+        name: validated.data.name,
+      })
+      .returning();
+  } catch (err) {
+    return { success: false, error: describeDbError(err, "blog category") };
+  }
 
   await recordAuditLog({
     userId: user.id,

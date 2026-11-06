@@ -3,6 +3,7 @@
 import { Globe, Loader2, Mail, Menu, Save, Share2, Shield } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { useServerSyncedState } from "@/lib/hooks/use-server-synced-state";
 import type { SiteSettingsData } from "@/lib/schemas/settings";
 import { updateSiteSettingsAction } from "@/server/actions/settings";
 
@@ -15,7 +16,8 @@ export function SettingsEditor({ initialSettings }: SettingsEditorProps) {
     "general" | "contact" | "social" | "navigation" | "security"
   >("general");
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [form, setForm] = useState<SiteSettingsData>(initialSettings);
+  const [form, setForm] =
+    useServerSyncedState<SiteSettingsData>(initialSettings);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

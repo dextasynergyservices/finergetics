@@ -113,7 +113,6 @@ export function CaseStudyForm({
       if (res.success) {
         toast.success(isEdit ? "Case study updated!" : "Case study created!");
         router.push("/admin/case-studies");
-        router.refresh();
       } else {
         toast.error(res.error || "Failed to save case study");
       }

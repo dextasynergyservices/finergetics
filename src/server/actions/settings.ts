@@ -1,5 +1,6 @@
 "use server";
 
+import { formatZodIssues } from "@/lib/schemas/common";
 import { siteSettingsDataSchema } from "@/lib/schemas/settings";
 import { recordAuditLog } from "@/server/audit/audit";
 import { requireAdmin } from "@/server/auth/guard";
@@ -14,9 +15,7 @@ export async function updateSiteSettingsAction(rawInput: unknown) {
   if (!validated.success) {
     return {
       success: false,
-      error:
-        "Validation failed: " +
-        validated.error.issues.map((i) => i.message).join(", "),
+      error: `Validation failed: ${formatZodIssues(validated.error.issues)}`,
     };
   }
 

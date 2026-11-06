@@ -15,7 +15,8 @@
       "!build",
       "!public",
       "!drizzle",
-      "!src/components/ui"
+      "!src/components/ui",
+      "!src/styles/shadcn-tailwind.css"
     ]
   },
   "formatter": {

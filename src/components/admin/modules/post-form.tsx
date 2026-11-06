@@ -62,7 +62,6 @@ export function PostForm({
       if (res.success) {
         toast.success(isEdit ? "Article updated!" : "Article published!");
         router.push("/admin/posts");
-        router.refresh();
       } else {
         toast.error(res.error || "Failed to save article");
       }

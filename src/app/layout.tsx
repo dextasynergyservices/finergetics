@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Archivo_Black, Open_Sans, Outfit } from "next/font/google";
+import { Toaster } from "sonner";
 import { SmoothScrollProvider } from "@/components/providers/smooth-scroll";
 import { cn } from "@/lib/utils";
 import "./globals.css";
@@ -62,6 +63,17 @@ export default function RootLayout({
           Skip to main content
         </a>
         <SmoothScrollProvider>{children}</SmoothScrollProvider>
+        {/* Single app-wide toaster (public site + admin). Top-center keeps
+            messages in view on mobile and desktop, above sticky headers. */}
+        <Toaster
+          position="top-center"
+          richColors
+          closeButton
+          expand
+          duration={6000}
+          offset={{ top: 80 }}
+          mobileOffset={{ top: 72 }}
+        />
       </body>
     </html>
   );

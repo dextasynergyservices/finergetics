@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { imageRefSchema, publishStatusSchema, slugSchema } from "./common";
+import {
+  imageRefSchema,
+  optionalText,
+  publishStatusSchema,
+  slugSchema,
+} from "./common";
 
 export const postCategoryInputSchema = z.object({
   slug: slugSchema,
@@ -26,8 +31,8 @@ export const postInputSchema = z.object({
   authorId: z.string().uuid("Invalid author ID").optional().nullable(),
   readingMinutes: z.coerce.number().int().positive().default(5),
   publishedAt: z.coerce.date().optional().nullable(),
-  seoTitle: z.string().max(160).optional(),
-  seoDescription: z.string().max(320).optional(),
+  seoTitle: optionalText(160),
+  seoDescription: optionalText(320),
   status: publishStatusSchema.default("draft"),
 });
 

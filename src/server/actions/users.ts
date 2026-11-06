@@ -2,7 +2,9 @@
 
 import crypto from "node:crypto";
 import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { formatZodIssues } from "@/lib/schemas/common";
 import { inviteUserSchema } from "@/lib/schemas/user";
 import { recordAuditLog } from "@/server/audit/audit";
 import { auth } from "@/server/auth/auth";
@@ -22,9 +24,7 @@ export async function inviteUserAction(rawInput: unknown) {
   if (!validated.success) {
     return {
       success: false,
-      error:
-        "Validation failed: " +
-        validated.error.issues.map((i) => i.message).join(", "),
+      error: `Validation failed: ${formatZodIssues(validated.error.issues)}`,
     };
   }
 
@@ -101,6 +101,8 @@ export async function inviteUserAction(rawInput: unknown) {
     },
   });
 
+  revalidatePath("/admin", "layout");
+
   return {
     success: true,
     emailDispatched: emailResult.success,
@@ -149,6 +151,8 @@ export async function resendInvitationAction(email: string) {
     invitedBy: inviterName,
   });
 
+  revalidatePath("/admin", "layout");
+
   return { success: true, emailDispatched: emailResult.success };
 }
 
@@ -162,6 +166,8 @@ export async function cancelInvitationAction(email: string) {
   await db
     .delete(adminInvitations)
     .where(eq(adminInvitations.email, cleanEmail));
+
+  revalidatePath("/admin", "layout");
 
   return { success: true };
 }
@@ -233,7 +239,7 @@ export async function acceptInvitationAction(rawInput: unknown) {
   if (!validated.success) {
     return {
       success: false,
-      error: validated.error.issues.map((i) => i.message).join(", "),
+      error: formatZodIssues(validated.error.issues),
     };
   }
 
@@ -329,6 +335,8 @@ export async function updateUserRoleAction(params: {
     summary: { newRole: params.role },
   });
 
+  revalidatePath("/admin", "layout");
+
   return { success: true };
 }
 
@@ -357,6 +365,8 @@ export async function deleteUserAction(targetUserId: string) {
       summary: { email: deleted.email },
     });
   }
+
+  revalidatePath("/admin", "layout");
 
   return { success: true };
 }
@@ -423,7 +433,7 @@ export async function resetPasswordWithTokenAction(rawInput: unknown) {
   if (!validated.success) {
     return {
       success: false,
-      error: validated.error.issues.map((i) => i.message).join(", "),
+      error: formatZodIssues(validated.error.issues),
     };
   }
 
